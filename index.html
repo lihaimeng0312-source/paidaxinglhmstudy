@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E7A5F">
+<title>派大星lhm学习助手 · SCE Moodle</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E7A5F'/%3E%3Cpath d='M18 34l10 10 18-20' stroke='%23fff' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="assets/icon.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@600;700;900&display=swap">
+<style>
+/* ============ tokens ============ */
+:root{
+  --bg:#F2F5F0; --bg2:#E9EEE7; --card:#FFFFFF; --ink:#1C2A24; --ink2:#5A6B63; --ink3:#8A988F;
+  --line:#DCE4DB; --line2:#C9D4C8;
+  --brand:#0E7A5F; --brand2:#0B5E4B; --brand-bg:#E3F1EA;
+  --amber:#B45309; --amber-bg:#FBF0DC; --amber-line:#EBD9AE;
+  --danger:#B83A2E; --danger-bg:#FBEBE7;
+  --ok:#2F8F5B; --ok-bg:#E5F3EA;
+  --blue:#2C6E8F; --blue-bg:#E4EFF5;
+  --radius:12px; --radius-s:8px;
+  --shadow:0 1px 2px rgba(28,42,36,.05), 0 8px 24px rgba(28,42,36,.05);
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --nav-w:232px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:15px;color:var(--ink)}
+::selection{background:var(--brand-bg)}
+h1,h2,h3{font-family:var(--serif);font-weight:700;line-height:1.3}
+
+/* ============ layout ============ */
+#app{display:flex;min-height:100vh}
+#nav{width:var(--nav-w);flex:0 0 var(--nav-w);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;background:var(--card);border-right:1px solid var(--line);padding:20px 14px;z-index:40}
+.logo{display:flex;align-items:center;gap:10px;padding:4px 8px 18px}
+.logo-badge{width:38px;height:38px;border-radius:11px;background:var(--brand);display:flex;align-items:center;justify-content:center;flex:0 0 38px}
+.logo b{font-family:var(--serif);font-size:17px;display:block;line-height:1.2}
+.logo span{font-size:11.5px;color:var(--ink2);display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:var(--ink2);font-weight:500;font-size:14.5px;margin-bottom:2px;transition:background .15s,color .15s}
+.nav-item:hover{background:var(--bg2);color:var(--ink)}
+.nav-item.active{background:var(--brand-bg);color:var(--brand2);font-weight:600}
+.nav-item .n-ic{display:flex;flex:0 0 auto}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:1px 7px;min-width:20px;text-align:center}
+#nav .nav-foot{margin-top:auto;padding:10px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--ink3)}
+.fresh{display:flex;align-items:center;gap:7px;margin-bottom:8px;font-size:12px;color:var(--ink2);word-break:break-all}
+#main{flex:1;min-width:0;padding:28px 34px 80px;max-width:1180px;margin:0 auto;width:100%}
+
+/* ============ bottom nav (tablet / phone) ============ */
+#bottomnav{display:none}
+
+/* ============ typography & blocks ============ */
+.page-head{margin-bottom:22px}
+.page-head .kicker{font-size:12.5px;font-weight:600;letter-spacing:.06em;color:var(--brand);margin-bottom:6px}
+.page-head h1{font-size:26px;letter-spacing:.01em}
+.page-head p{color:var(--ink2);font-size:13.5px;margin-top:4px}
+.section{margin-bottom:26px}
+.section-h{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.section-h h2{font-size:17.5px}
+.section-h .sub{font-size:12.5px;color:var(--ink3)}
+.section-h .spacer{flex:1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.card + .card{margin-top:14px}
+.card.flat{box-shadow:none}
+.card.warn{border-color:var(--amber-line);background:#FFFCF4}
+.card.danger{border-color:#EBC4BC;background:var(--danger-bg)}
+.empty{color:var(--ink3);text-align:center;padding:26px 12px;font-size:13.5px}
+.empty b{color:var(--ink2);display:block;font-size:14.5px;margin-bottom:3px}
+
+/* ============ buttons ============ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px;border-radius:9px;font-size:14px;font-weight:600;transition:background .15s,border-color .15s,opacity .15s;border:1px solid transparent;white-space:nowrap}
+.btn.primary{background:var(--brand);color:#fff}
+.btn.primary:hover{background:var(--brand2)}
+.btn.ghost{background:var(--card);border-color:var(--line2);color:var(--ink)}
+.btn.ghost:hover{border-color:var(--brand);color:var(--brand2)}
+.btn.soft{background:var(--brand-bg);color:var(--brand2)}
+.btn.soft:hover{background:#D5E9DF}
+.btn.danger{background:var(--danger-bg);color:var(--danger)}
+.btn.sm{padding:5px 11px;font-size:12.5px;border-radius:7px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn .bi{display:flex}
+/* ============ chips / badges ============ */
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.chip.urgent{background:var(--danger-bg);color:var(--danger)}
+.chip.soon{background:var(--amber-bg);color:var(--amber)}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}
+.chip.warn{background:var(--amber-bg);color:var(--amber)}
+.chip.info{background:var(--blue-bg);color:var(--blue)}
+.chip.neutral{background:var(--bg2);color:var(--ink2)}
+.chip.brand{background:var(--brand-bg);color:var(--brand2)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;padding:1px 8px;border-radius:999px}
+.badge.done{background:var(--ok-bg);color:var(--ok)}
+.badge.todo{background:var(--amber-bg);color:var(--amber)}
+
+/* ============ lists / rows ============ */
+.row{display:flex;align-items:flex-start;gap:12px;padding:13px 4px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:none}
+.row .r-main{flex:1;min-width:0}
+.row .r-title{font-weight:600;font-size:14.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.row .r-sub{font-size:12.5px;color:var(--ink2);margin-top:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.row .r-act{flex:0 0 auto;display:flex;align-items:center;gap:8px}
+.linkout{color:var(--blue);display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:600}
+.linkout:hover{text-decoration:underline}
+.muted{color:var(--ink3);font-size:12.5px}
+
+/* ============ checkbox ============ */
+.check{flex:0 0 26px;width:26px;height:26px;border:2px solid var(--line2);border-radius:8px;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px}
+button.check:hover{border-color:var(--brand)}
+.check.on{background:var(--brand);border-color:var(--brand)}
+.check .ck-svg{opacity:0;transform:scale(.5);transition:all .15s}
+.check.on .ck-svg{opacity:1;transform:scale(1)}
+.task-done .r-title{color:var(--ink3);text-decoration:line-through}
+.task-done .r-sub{color:var(--ink3)}
+
+/* ============ stats ============ */
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.stat .s-num{font-family:var(--serif);font-size:26px;font-weight:900;line-height:1.1}
+.stat .s-lab{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.stat .s-num.u{color:var(--danger)} .stat .s-num.w{color:var(--amber)} .stat .s-num.g{color:var(--ok)} .stat .s-num.b{color:var(--blue)}
+
+/* ============ course cards ============ */
+.coursegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.course-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;cursor:pointer;transition:border-color .15s,transform .15s;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.course-card:hover{border-color:var(--brand);transform:translateY(-1px)}
+.cc-top{display:flex;align-items:center;gap:10px}
+.cc-tag{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;flex:0 0 36px;font-family:var(--serif);font-weight:700;font-size:13px}
+.cc-name{font-weight:700;font-size:14.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cc-meta{font-size:12px;color:var(--ink3)}
+.cc-stats{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+
+/* ============ tabs ============ */
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:16px;overflow-x:auto}
+.tab{padding:9px 14px;font-size:14px;font-weight:600;color:var(--ink2);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab.active{color:var(--brand2);border-bottom-color:var(--brand)}
+.tab .cnt{font-size:11.5px;background:var(--bg2);border-radius:999px;padding:0 6px;margin-left:4px;color:var(--ink2)}
+.tab.active .cnt{background:var(--brand-bg);color:var(--brand2)}
+
+/* ============ forms ============ */
+.field{margin-bottom:13px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1px solid var(--line2);border-radius:9px;background:var(--card);outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand)}
+.field textarea{min-height:76px;resize:vertical}
+.field .hint{font-size:12px;color:var(--ink3);margin-top:4px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+details.acc{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);margin-bottom:12px;box-shadow:var(--shadow)}
+details.acc summary{padding:13px 16px;font-weight:600;font-size:14px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:9px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc .acc-body{padding:2px 16px 16px;border-top:1px solid var(--line)}
+
+/* ============ notes ============ */
+.note-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
+.note-head{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;background:var(--bg2);border-bottom:1px solid var(--line)}
+.note-head .nh-title{font-weight:700;font-size:14.5px}
+.note-head .nh-sub{font-size:12px;color:var(--ink3)}
+.note-body{padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.note-col .nc-lab{font-size:11.5px;font-weight:700;letter-spacing:.05em;color:var(--ink3);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.note-col .nc-txt{font-size:13.5px;white-space:pre-wrap;word-break:break-word}
+.note-col textarea{min-height:120px}
+@media(max-width:760px){.note-body{grid-template-columns:1fr}}
+
+/* ============ quiz ============ */
+.q-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:14px}
+.q-meta{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink2);margin-bottom:14px;flex-wrap:wrap}
+.q-stem{font-size:16px;font-weight:600;margin-bottom:6px;line-height:1.5}
+.q-point{font-size:12px;color:var(--brand2);background:var(--brand-bg);border-radius:999px;padding:1px 9px;display:inline-block;margin-bottom:10px}
+.q-opts{display:flex;flex-direction:column;gap:9px;margin:12px 0}
+.q-opt{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border:1.5px solid var(--line2);border-radius:10px;cursor:pointer;font-size:14px;transition:border-color .12s,background .12s}
+.q-opt:hover{border-color:var(--brand)}
+.q-opt.sel{border-color:var(--brand);background:var(--brand-bg)}
+.q-opt.correct{border-color:var(--ok);background:var(--ok-bg)}
+.q-opt.wrong{border-color:var(--danger);background:var(--danger-bg)}
+.q-opt .qk{flex:0 0 22px;height:22px;border-radius:6px;border:1.5px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.q-opt.sel .qk{background:var(--brand);color:#fff;border-color:var(--brand)}
+.q-opt.correct .qk{background:var(--ok);color:#fff;border-color:var(--ok)}
+.q-opt.wrong .qk{background:var(--danger);color:#fff;border-color:var(--danger)}
+.q-answer{margin-top:8px;padding:11px 14px;border-radius:10px;font-size:13.5px;background:var(--bg2)}
+.q-answer b{color:var(--brand2)}
+.q-bar{height:7px;background:var(--bg2);border-radius:999px;overflow:hidden;margin-bottom:16px}
+.q-bar i{display:block;height:100%;background:var(--brand);border-radius:999px;transition:width .3s}
+.q-result{text-align:center;padding:22px 0 8px}
+.q-result .score{font-family:var(--serif);font-size:44px;font-weight:900}
+.q-result .score small{font-size:16px;color:var(--ink3);font-weight:600}
+
+/* ============ modal / toast ============ */
+#modal{position:fixed;inset:0;background:rgba(18,30,24,.45);z-index:100;display:none;align-items:center;justify-content:center;padding:18px}
+#modal.open{display:flex}
+.modal-card{background:var(--card);border-radius:16px;width:100%;max-width:520px;max-height:86vh;overflow:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-card h3{font-size:18px;margin-bottom:14px}
+#toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:13.5px;opacity:0;pointer-events:none;transition:all .25s;z-index:200;max-width:86vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ============ week plan ============ */
+.day-block{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+.day-head{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--bg2)}
+.day-head .dh-date{font-family:var(--serif);font-weight:700;font-size:15px}
+.day-head .dh-flag{font-size:12px;color:var(--ink2)}
+.day-head .dh-tag{margin-left:auto}
+.day-body{padding:6px 14px}
+.mini-row{display:flex;align-items:center;gap:11px;padding:9px 2px;border-bottom:1px dashed var(--line)}
+.mini-row:last-child{border-bottom:none}
+.mini-row .mr-main{flex:1;min-width:0;font-size:13.5px}
+.mini-row .mr-main b{font-weight:600}
+.mini-row.done .mr-main{color:var(--ink3);text-decoration:line-through}
+
+/* ============ timeline for events ============ */
+.tl{display:grid;grid-template-columns:92px 1fr;gap:0;position:relative}
+.tl .tl-time{font-size:12.5px;color:var(--ink2);padding:10px 12px 10px 0;text-align:right;font-variant-numeric:tabular-nums}
+.tl .tl-dot{position:relative;padding:10px 0 10px 18px}
+.tl .tl-dot::before{content:"";position:absolute;left:4px;top:0;bottom:0;width:2px;background:var(--line2)}
+.tl .tl-dot::after{content:"";position:absolute;left:0;top:16px;width:10px;height:10px;border-radius:50%;background:var(--brand);border:2px solid var(--card)}
+.tl .tl-dot.u::after{background:var(--danger)}
+.tl .tl-dot.s::after{background:var(--amber)}
+
+/* ============ responsive ============ */
+@media(max-width:920px){
+  #nav{display:none}
+  #bottomnav{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:60;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  #bottomnav .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border-radius:10px;color:var(--ink2);font-size:11px;font-weight:600}
+  #bottomnav .bn-item.active{color:var(--brand2);background:var(--brand-bg)}
+  #main{padding:20px 16px 110px}
+  .statgrid{grid-template-columns:repeat(2,1fr)}
+  .coursegrid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  .coursegrid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .page-head h1{font-size:22px}
+  .tl{grid-template-columns:74px 1fr}
+}
+
+/* ============ print (笔记导出 PDF) ============ */
+@media print{
+  #nav,#bottomnav,.no-print{display:none!important}
+  #main{padding:0;max-width:none}
+  body{background:#fff}
+  .card,.note-card,.day-block{box-shadow:none;border-color:#ddd;page-break-inside:avoid}
+  .section-h h2{font-size:15px}
+  body{font-size:13px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="nav">
+    <div class="logo">
+      <div class="logo-badge" id="logoIcon"></div>
+      <div><b>派大星lhm学习助手</b><span>Moodle Study Hub</span></div>
+    </div>
+    <a class="nav-item" href="#/today" data-nav="today"><span class="n-ic" id="navIcToday"></span>本周要点<span class="nav-badge" id="navBadgeToday" style="display:none"></span></a>
+    <a class="nav-item" href="#/courses" data-nav="courses"><span class="n-ic" id="navIcCourses"></span>我的课程</a>
+    <a class="nav-item" href="#/settings" data-nav="settings"><span class="n-ic" id="navIcSettings"></span>设置</a>
+    <div class="nav-foot">
+      <div class="fresh" id="navFresh"></div>
+      <div>数据只保存在本设备浏览器中</div>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+
+<nav id="bottomnav">
+  <a class="bn-item" href="#/today" data-nav="today"><span id="bnIcToday"></span>本周</a>
+  <a class="bn-item" href="#/courses" data-nav="courses"><span id="bnIcCourses"></span>课程</a>
+  <a class="bn-item" href="#/settings" data-nav="settings"><span id="bnIcSettings"></span>设置</a>
+</nav>
+
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   派大星lhm学习助手 · 单文件应用
+   数据源：Moodle 快照导入 / wstoken 直连 / 手动添加
+   功能：本周要点、每周周报、学习计划与打钩记忆、课程分类、中英复习笔记、按考点小测
+   ===================================================================== */
+
+/* ---------------- 图标（内联 SVG） ---------------- */
+var IC = {
+  check:'<svg class="ck-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>',
+  checkCol:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>',
+  cal:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>',
+  bell:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5a6 6 0 0112 0c0 4.5 1.5 6 1.5 6h-15S6 14 6 9.5z"/><path d="M10.5 19a1.7 1.7 0 003 0"/></svg>',
+  book:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 016.5 3H20v15.5H6.5A2.5 2.5 0 004 21V5.5z"/><path d="M4 18.5A2.5 2.5 0 016.5 16H20"/></svg>',
+  quiz:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v4H9z"/><path d="M7 3H4v18h16V3h-3"/><path d="M8.5 10.5h7M8.5 14h4.5"/></svg>',
+  gear:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.2 5.2l1.9 1.9M16.9 16.9l1.9 1.9M18.8 5.2l-1.9 1.9M7.1 16.9l-1.9 1.9"/></svg>',
+  dl:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 19.5h16"/></svg>',
+  ext:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4L10 14"/><path d="M19 13.5V19a1.5 1.5 0 01-1.5 1.5h-12A1.5 1.5 0 014 19V7a1.5 1.5 0 011.5-1.5H11"/></svg>',
+  alert:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5L2.5 20h19L12 3.5z"/><path d="M12 10v4.5"/><path d="M12 17.5v.5"/></svg>',
+  right:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
+  plus:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  refresh:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 10-2.3 6.3"/><path d="M20 5v6h-6"/></svg>',
+  trash:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/><path d="M10 11v5M14 11v5"/></svg>',
+  spark:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z"/></svg>',
+  cap:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9.5L12 4.5l9.5 5-9.5 5-9.5-5z"/><path d="M6.5 12v4.5c0 1.5 2.5 3 5.5 3s5.5-1.5 5.5-3V12"/><path d="M21.5 9.5V15"/></svg>',
+  flag:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4.5"/><path d="M5 4.5h12l-2.5 4 2.5 4H5"/></svg>',
+  clock:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 1.8"/></svg>',
+  chat:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 016.5 3h11A2.5 2.5 0 0120 5.5v9a2.5 2.5 0 01-2.5 2.5H10l-4.5 4v-4H6.5A2.5 2.5 0 014 14.5v-9z"/></svg>',
+  folder:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.2l2 2.4H19A1.5 1.5 0 0120.5 8.9v8.6A1.5 1.5 0 0119 19H5a1.5 1.5 0 01-1.5-1.5v-11z"/></svg>',
+  archive:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16v12H4z"/><path d="M3 4.5h18V8H3z"/><path d="M10 12h4"/></svg>'
+};
+function setIc(id, name){ var el=document.getElementById(id); if(el) el.innerHTML=IC[name]; }
+function ic(name){ return IC[name]||''; }
+/* ---------------- 工具函数 ---------------- */
+function $(sel){ return document.querySelector(sel); }
+function $all(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function escAttr(s){ return esc(s); }
+function now(){ return new Date(); }
+function unix(ms){ return Math.round(ms/1000); }
+function fromUnix(u){ return u? new Date(u*1000):null; }
+function pad2(n){ return n<10?'0'+n:''+n; }
+function fmtDate(d){ if(!d) return ''; return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function fmtDateCN(d){ if(!d) return ''; var wd=['日','一','二','三','四','五','六']; return (d.getMonth()+1)+'月'+d.getDate()+'日 周'+wd[d.getDay()]; }
+function fmtTime(d){ if(!d) return ''; return fmtDate(d)+' '+pad2(d.getHours())+':'+pad2(d.getMinutes()); }
+function fmtDur(sec){ if(sec==null) return ''; sec=Math.round(sec); if(sec<=0) return '已过期'; var d=Math.floor(sec/86400),h=Math.floor((sec%86400)/3600),m=Math.floor((sec%3600)/60); if(d>0)return d+'天'+(h>0?h+'小时':''); if(h>0)return h+'小时'+(m>0?m+'分':''); return (m>0?m+'分':'1分')+'内'; }
+function relTime(u){ if(!u) return ''; var diff=Date.now()/1000-u; if(diff<0) return fmtDur(-diff)+'后'; if(diff<60) return '刚刚'; if(diff<3600) return Math.floor(diff/60)+'分钟前'; if(diff<86400) return Math.floor(diff/3600)+'小时前'; if(diff<604800) return Math.floor(diff/86400)+'天前'; return fmtDate(fromUnix(u)); }
+function startOfDay(d){ var x=new Date(d); x.setHours(0,0,0,0); return x; }
+function dayKey(d){ return fmtDate(d); }
+function addDays(d,n){ var x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function isoWeek(d){ var x=new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate()+3-((x.getDay()+6)%7)); var w1=new Date(x.getFullYear(),0,4); return x.getFullYear()+'-W'+pad2(1+Math.round(((x-w1)/86400000-3+((w1.getDay()+6)%7))/7)); }
+function uid(){ return 'u'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function hashStr(s){ var h=0; s=String(s); for(var i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))>>>0; } return h.toString(36); }
+function toast(msg){ var t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._tm); toast._tm=setTimeout(function(){ t.classList.remove('show'); },2400); }
+function download(name, content, mime){ var blob=new Blob([content],{type:mime||'application/octet-stream'}); var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },400); }
+function mdEscape(s){ return String(s==null?'':s).replace(/\|/g,'\\|'); }
+function stripHtml(s){ var d=document.createElement('div'); d.innerHTML=String(s||''); return d.textContent||''; }
+
+/* ---------------- 数据存储 ---------------- */
+var LS_KEY='mlh_assistant_v1';
+var DB={ courses:[], assignments:[], events:[], announcements:[], posts:[], sections:[], submissions:{}, meta:{ updatedAt:0, source:'', lastReportWeek:'', lastReportAt:0, moodleBase:'https://scemoodle.hkbu.edu.hk', moodleToken:'', aiEnabled:false, aiBase:'https://api.deepseek.com/v1', aiKey:'', aiModel:'deepseek-chat', quizTotal:12, notes:{} } };
+var CHECK={};   // taskId -> true
+var QUIZLOG={}; // courseId -> [ {date, score, total, mode} ]
+var NOTE_TXT={};// courseId -> { pointId -> {zh:'', en:'', ai:''} }
+
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({db:DB,check:CHECK,quiz:QUIZLOG,notes:NOTE_TXT})); }catch(e){ console.warn('save failed',e); } }
+function load(){
+  try{
+    var raw=localStorage.getItem(LS_KEY); if(!raw) return;
+    var o=JSON.parse(raw);
+    if(o.db){ DB=Object.assign(DB, o.db); DB.meta=Object.assign(DB.meta, o.db.meta||{}); }
+    if(o.check) CHECK=o.check;
+    if(o.quiz) QUIZLOG=o.quiz;
+    if(o.notes) NOTE_TXT=o.notes;
+  }catch(e){ console.warn('load failed',e); }
+}
+function wipeAll(){ localStorage.removeItem(LS_KEY); location.reload(); }
+
+/* 数据新鲜度 */
+function freshLabel(){ var u=DB.meta.updatedAt; if(!u) return '尚无数据'; return '数据更新于 '+fmtTime(fromUnix(u))+(DB.meta.source?'（'+DB.meta.source+'）':''); }
+function isFresh(){ return DB.meta.updatedAt>0; }
+/* ---------------- 课程 & 事项模型 ---------------- */
+function courseById(id){ for(var i=0;i<DB.courses.length;i++) if(String(DB.courses[i].id)===String(id)) return DB.courses[i]; return null; }
+function assignmentsOf(cid){ return DB.assignments.filter(function(a){ return String(a.course_id)===String(cid); }); }
+function eventsOf(cid){ return DB.events.filter(function(e){ return String(e.course_id)===String(cid); }); }
+function announcementsOf(cid){ return DB.announcements.filter(function(a){ return String(a.course_id)===String(cid); }); }
+function postsOf(cid){ return DB.posts.filter(function(p){ return String(p.course_id)===String(cid); }); }
+function sectionsOf(cid){ return DB.sections.filter(function(s){ return String(s.course_id)===String(cid); }); }
+function subStatus(aid){ var s=DB.submissions[String(aid)]; return s||null; }
+function courseTagColor(cid){ var p=['#0E7A5F','#2C6E8F','#B45309','#7A5C2E','#8A5A44','#4A6B53','#556B7A','#7A6E5C']; var h=0; String(cid).split('').forEach(function(c){ h=(h*31+c.charCodeAt(0))>>>0; }); return p[h%p.length]; }
+function courseShort(c){ if(!c) return '?'; var n=c.shortname||c.fullname||'课'; return n.replace(/\s+/g,' ').slice(0,2).toUpperCase(); }
+
+/* ---------------- 打钩记忆 ---------------- */
+function taskIdOf(kind,id){ return kind+':'+String(id); }
+function isDone(kind,id){ return !!CHECK[taskIdOf(kind,id)]; }
+function toggleTask(kind,id){ var k=taskIdOf(kind,id); if(CHECK[k]){ delete CHECK[k]; } else { CHECK[k]=Date.now()/1000; } save(); rerender(); }
+function doneCount(){ var n=0; for(var k in CHECK) n++; return n; }
+
+/* ---------------- 学习计划引擎 ---------------- */
+function openAssignments(){ return DB.assignments.filter(function(a){ return a.duedate && a.duedate>=Date.now()/1000 && !isDone('assign',a.id); }); }
+function urgentEvents(days){ var nowU=Date.now()/1000; var lim=nowU+days*86400; return DB.events.filter(function(e){ return e.timestart && e.timestart>=nowU-86400 && e.timestart<=lim && !isDone('event',e.id) && e.type!=='assign'; }); }
+function unreadAnnouncements(){ return DB.announcements.filter(function(a){ return !isDone('ann',a.id); }); }
+function unsubmittedDueSoon(days){ var nowU=Date.now()/1000; var lim=nowU+days*86400; return DB.assignments.filter(function(a){ var st=subStatus(a.id); var bad=!st || st.status==='not_submitted' || (!st.status && !st.submitted); return a.duedate && a.duedate>nowU-86400 && a.duedate<=lim && bad && !isDone('assign',a.id); }); }
+
+/* 本周（7 天）紧要事项：作业截止 + 考试/事件 + 未读公告 + 未交作业 */
+function weekUrgent(){
+  var nowU=Date.now()/1000, lim=nowU+7*86400;
+  var out=[];
+  DB.assignments.forEach(function(a){
+    if(!a.duedate) return;
+    var st=subStatus(a.id); var submitted= st? (st.submitted||st.status==='submitted'||st.status==='graded') : false;
+    var over= a.duedate<nowU && !isDone('assign',a.id) && !submitted;
+    if(isDone('assign',a.id)) return;
+    if((a.duedate<=lim && a.duedate>=nowU-86400) || over){
+      out.push({kind:'assign', item:a, course:courseById(a.course_id), overdue:over, submitted:submitted});
+    }
+  });
+  urgentEvents(7).forEach(function(e){ out.push({kind:'event', item:e, course:courseById(e.course_id), overdue:false}); });
+  unreadAnnouncements().forEach(function(a){ out.push({kind:'ann', item:a, course:courseById(a.course_id)}); });
+  out.sort(function(x,y){
+    var a=x.kind==='assign'?x.item.duedate:(x.kind==='event'?x.item.timestart:9e15);
+    var b=y.kind==='assign'?y.item.duedate:(y.kind==='event'?y.item.timestart:9e15);
+    return a-b;
+  });
+  return out;
+}
+
+/* 每日计划：把未完成事项排进未来 7 天 */
+function buildPlan(){
+  var today=startOfDay(now());
+  var days=[]; for(var i=0;i<7;i++) days.push({date:addDays(today,i), tasks:[]});
+  var nowU=Date.now()/1000;
+  var items=openAssignments().map(function(a){ return {kind:'assign',item:a,course:courseById(a.course_id),due:a.duedate}; });
+  urgentEvents(14).forEach(function(e){ items.push({kind:'event',item:e,course:courseById(e.course_id),due:e.timestart}); });
+  items.sort(function(a,b){ return a.due-b.due; });
+  items.forEach(function(t){
+    var daysLeft=Math.ceil((t.due-nowU)/86400);
+    var idx=0;
+    if(daysLeft<=1) idx=0;
+    else if(daysLeft<=3) idx=1;
+    else if(daysLeft<=5) idx=Math.min(2,Math.floor(daysLeft/2));
+    else idx=Math.min(6,Math.max(3,daysLeft-3));
+    if(days[idx].tasks.length<4 || idx===0){ days[idx].tasks.push(t); }
+    else { for(var j=idx+1;j<7;j++){ if(days[j].tasks.length<4){ days[j].tasks.push(t); return; } } days[6].tasks.push(t); }
+  });
+  /* 每门有考试/作业的课，穿插复习与小测 */
+  var courseIds={}; items.forEach(function(t){ courseIds[t.course?t.course.id:'x']=1; });
+  Object.keys(courseIds).forEach(function(cid){
+    if(courseById(cid)) days[0].tasks.push({kind:'review',course:courseById(cid),due:0});
+  });
+  return days;
+}
+
+/* 每周周报 */
+function buildReport(){
+  var nowU=Date.now()/1000;
+  var urgent=weekUrgent();
+  var doneThisWeek=0; Object.keys(CHECK).forEach(function(k){ if(CHECK[k]>nowU-7*86400) doneThisWeek++; });
+  var unsub=unsubmittedDueSoon(7);
+  var news=unreadAnnouncements();
+  var assignDue=urgent.filter(function(u){return u.kind==='assign';});
+  var subOk=DB.assignments.filter(function(a){ var st=subStatus(a.id); return st && (st.submitted||st.status==='submitted'||st.status==='graded'); });
+  return { generatedAt:nowU, urgent:urgent, doneThisWeek:doneThisWeek, unsub:unsub, news:news, assignDue:assignDue, subOk:subOk,
+    overdue:assignDue.filter(function(u){return u.overdue;}), pending:assignDue.filter(function(u){return !u.overdue;}) };
+}
+
+/* 考点：课程小节与模块（用于笔记与小测） */
+function pointsOf(cid){
+  var sects=sectionsOf(cid); var pts=[];
+  sects.forEach(function(s){
+    var mods=(s.modules||[]).filter(function(m){ return m && m.name && !/^$/.test(m.name); });
+    if(s.name || mods.length){
+      pts.push({id:'sec'+String(s.id||s.section), title:s.name||'（未命名小节）', mods:mods, section:s});
+    }
+  });
+  if(!pts.length){
+    var title=(courseById(cid)||{}).fullname||'本课程';
+    pts.push({id:'sec0', title:title, mods:[], section:null});
+  }
+  return pts;
+}
+function pointWeight(pt){ return 1 + (pt.mods?pt.mods.length:0)*0.6; }
+function pointTotalWeight(cid){ var ps=pointsOf(cid); var w=0; ps.forEach(function(p){ w+=pointWeight(p); }); return w||1; }
+/* ---------------- 渲染公共 ---------------- */
+function pageHead(kicker,title,sub,actions){
+  return '<div class="page-head"><div class="kicker">'+esc(kicker)+'</div><h1>'+esc(title)+'</h1>'+(sub?'<p>'+esc(sub)+'</p>':'')+(actions?'<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'+actions+'</div>':'')+'</div>';
+}
+function emptyBox(title,sub){ return '<div class="empty"><b>'+esc(title||'')+'</b>'+esc(sub||'')+'</div>'; }
+function chipRow(kind,val,extra){
+  var cls={urgent:'urgent',soon:'soon',ok:'ok',info:'info',neutral:'neutral',brand:'brand'}[kind]||'neutral';
+  return '<span class="chip '+cls+'">'+(extra||'')+esc(val)+'</span>';
+}
+function checkBtn(kind,id){
+  var on=isDone(kind,id);
+  return '<button class="check'+(on?' on':'')+'" data-act="check" data-kind="'+kind+'" data-id="'+escAttr(id)+'" aria-label="完成">'+ic('check')+'</button>';
+}
+function linkOut(url,txt){ return url?'<a class="linkout" href="'+escAttr(url)+'" target="_blank" rel="noopener">'+esc(txt||'打开')+ic('ext')+'</a>':''; }
+
+function renderNav(){
+  var urgent=weekUrgent().length;
+  setIc('logoIcon','cap'); setIc('navIcToday','flag'); setIc('navIcCourses','book'); setIc('navIcSettings','gear');
+  setIc('bnIcToday','flag'); setIc('bnIcCourses','book'); setIc('bnIcSettings','gear');
+  var b=$('#navBadgeToday'); if(b){ b.style.display= urgent? '':'none'; b.textContent=urgent>99?'99+':urgent; }
+  var f=$('#navFresh'); if(f) f.innerHTML=isFresh()?('<span>'+ic('refresh')+'</span><span>'+esc(freshLabel())+'</span>'):('<span style="color:var(--amber)">'+ic('alert')+'</span><span>尚未导入数据，去「设置」导入</span>');
+  var hash=(location.hash||'#/today').split('/')[1]||'today';
+  $all('[data-nav]').forEach(function(el){ el.classList.toggle('active', el.getAttribute('data-nav')===hash); });
+}
+
+/* ---------------- 视图：本周要点 ---------------- */
+function viewToday(){
+  var h=pageHead('本周要点','这周你该做什么','自动生成的周报与每日计划，完成的事打钩后不再提醒。');
+  if(!isFresh()){ h+='<div class="card warn" style="margin-bottom:16px">'+ic('alert')+' 还没有课程数据。请到「设置」导入 Moodle 快照，或手动添加课程。'+'</div>'; }
+  var rep=buildReport();
+  var stats='<div class="statgrid">'
+    +'<div class="stat"><div class="s-num u">'+rep.urgent.length+'</div><div class="s-lab">本周紧要事项</div></div>'
+    +'<div class="stat"><div class="s-num g">'+rep.doneThisWeek+'</div><div class="s-lab">本周已完成</div></div>'
+    +'<div class="stat"><div class="s-num w">'+rep.unsub.length+'</div><div class="s-lab">待交作业（7天内）</div></div>'
+    +'<div class="stat"><div class="s-num b">'+rep.news.length+'</div><div class="s-lab">未读公告</div></div>'
+    +'</div>';
+
+  /* 周报卡 */
+  var repHtml='<div class="card" style="margin-bottom:18px"><div class="section-h"><h2>每周周报</h2><span class="sub">'+fmtTime(fromUnix(rep.generatedAt))+' 生成</span><span class="spacer"></span>'
+    +'<button class="btn ghost sm" data-act="genreport">'+ic('refresh')+'重新生成</button></div>';
+  repHtml+='<div style="font-size:13.5px;line-height:2">';
+  repHtml+='<div>'+ic('flag')+' <b>紧要事项 '+rep.urgent.length+' 项</b>：'+ (rep.overdue.length?'<span class="chip urgent" style="margin-left:6px">'+rep.overdue.length+' 项已逾期</span>':'<span class="chip ok" style="margin-left:6px">暂无逾期</span>') +'</div>';
+  repHtml+='<div>'+ic('checkCol')+' <b>作业提交核对</b>（基于最近一次抓取的数据）：'+'已交 '+rep.subOk.length+' 项 · 未交/未确认 '+rep.unsub.length+' 项</div>';
+  repHtml+='<div>'+ic('bell')+' 新公告 '+rep.news.length+' 条未读</div>';
+  repHtml+='</div></div>';
+
+  /* 紧要事项 */
+  var uHtml='<div class="section"><div class="section-h"><h2>紧要事项</h2><span class="sub">点击可进入对应课程</span></div><div class="card">';
+  if(!rep.urgent.length){ uHtml+=emptyBox('这周暂时没有要紧事','有新的截止日期或公告时会出现在这里。'); }
+  rep.urgent.forEach(function(u){
+    var c=u.course; var icon='flag', chip='<span class="chip neutral">事项</span>';
+    var title='', sub='', url='';
+    if(u.kind==='assign'){ icon='cal'; title=u.item.name; url=u.item.url; sub='截止 '+fmtTime(fromUnix(u.item.duedate))+' · '+fmtDur(u.item.duedate-Date.now()/1000);
+      chip=u.overdue?'<span class="chip urgent">已逾期</span>':(u.item.duedate-Date.now()/1000<3*86400?'<span class="chip urgent">'+fmtDur(u.item.duedate-Date.now()/1000)+'后截止</span>':'<span class="chip soon">本周截止</span>');
+      if(u.submitted) chip='<span class="chip ok">已提交</span>';
+    }
+    if(u.kind==='event'){ icon='flag'; title=u.item.name; url=u.item.url; sub='开始 '+fmtTime(fromUnix(u.item.timestart)); chip='<span class="chip soon">考试/事件</span>'; }
+    if(u.kind==='ann'){ icon='bell'; title=u.item.subject||u.item.name; url=u.item.url; sub=stripHtml(u.item.message||'').slice(0,80)+(u.item.author?' · '+u.item.author:'')+' · '+relTime(u.item.timemodified); chip='<span class="chip info">新公告</span>'; }
+    uHtml+='<div class="row" data-click="course" data-id="'+(c?escAttr(c.id):'')+'"><div style="color:var(--brand2);margin-top:2px">'+ic(icon)+'</div><div class="r-main"><div class="r-title">'+esc(title)+' '+chip+'</div><div class="r-sub">'+(c?'<b style="color:var(--ink)">'+esc(c.shortname||c.fullname)+'</b> · ':'')+sub+'</div></div>'
+      +'<div class="r-act">'+checkBtn(u.kind,u.item.id)+(u.kind!=='ann'?linkOut(url,'详情'):linkOut(url,'阅读'))+'</div></div>';
+  });
+  uHtml+='</div></div>';
+
+  /* 每日计划 */
+  var plan=buildPlan();
+  var pHtml='<div class="section"><div class="section-h"><h2>每日学习计划</h2><span class="sub">按截止日期自动排布，完成即打钩</span></div>';
+  plan.forEach(function(d){
+    var isToday=d.date.getTime()===startOfDay(now()).getTime();
+    var open=d.tasks.filter(function(t){ return !(t.kind==='review'?false:isDone(t.kind,t.item?t.item.id:'')); });
+    var flag='';
+    if(isToday) flag='<span class="chip brand">今天</span>';
+    else if(d.date.getDay()===0||d.date.getDay()===6) flag='<span class="chip neutral">周末</span>';
+    pHtml+='<div class="day-block"><div class="day-head"><span class="dh-date">'+fmtDateCN(d.date)+'</span><span class="dh-flag">'+flag+'</span>'
+      +'<span class="dh-tag"><span class="badge '+(open.length?'todo':'done')+'">'+open.length+' 项待办</span></span></div><div class="day-body">';
+    if(!d.tasks.length) pHtml+='<div class="mini-row"><span class="muted">休息日，没有安排。也可以提前做后面的任务。</span></div>';
+    d.tasks.forEach(function(t){
+      var tid=t.item?String(t.item.id):(t.course?String(t.course.id):'');
+      var done=t.kind==='review'?false:isDone(t.kind,tid);
+      var label='';
+      if(t.kind==='assign'){ label='完成作业 <b>《'+esc(t.item.name)+'》</b>'+(t.course?'（'+esc(t.course.shortname||t.course.fullname)+'）':'')+' · 截止 '+fmtTime(fromUnix(t.item.duedate)); }
+      else if(t.kind==='event'){ label='准备 <b>'+esc(t.item.name)+'</b>'+(t.course?'（'+esc(t.course.shortname||t.course.fullname)+'）':'')+' · '+fmtTime(fromUnix(t.item.timestart)); }
+      else if(t.kind==='review'){ label='复习 <b>'+esc(t.course?t.course.fullname:'')+'</b>：看笔记 · 做小测'; }
+      pHtml+='<div class="mini-row'+(done?' done':'')+'">'+(t.kind==='review'?'<button class="check" data-act="goto-notes" data-id="'+(t.course?escAttr(t.course.id):'')+'">'+ic('check')+'</button>':checkBtn(t.kind,tid))
+        +'<div class="mr-main">'+label+'</div>'
+        +(t.kind==='review'?'<a class="linkout" href="#/notes/'+(t.course?escAttr(t.course.id):'')+'">去复习</a>':'')+'</div>';
+    });
+    pHtml+='</div></div>';
+  });
+  pHtml+='</div>';
+
+  /* 已办归档 */
+  var doneList=Object.keys(CHECK).filter(function(k){ return CHECK[k]>Date.now()/1000-7*86400; });
+  var aHtml='<div class="section"><details class="acc"><summary>'+ic('archive')+' 本周已完成（'+doneList.length+'）</summary><div class="acc-body">';
+  if(!doneList.length) aHtml+='<div class="empty">还没有完成记录，加油！</div>';
+  doneList.forEach(function(k){
+    var parts=k.split(':'); var kind=parts[0], id=parts.slice(1).join(':');
+    var t='';
+    if(kind==='assign'){ var a=DB.assignments.find(function(x){return String(x.id)===id;}); if(a) t=(courseById(a.course_id)?courseById(a.course_id).shortname+' · ':'')+a.name; }
+    else if(kind==='event'){ var e=DB.events.find(function(x){return String(x.id)===id;}); if(e) t=e.name; }
+    else if(kind==='ann'){ var n=DB.announcements.find(function(x){return String(x.id)===id;}); if(n) t='公告：'+(n.subject||n.name); }
+    if(t) aHtml+='<div class="mini-row done"><div class="mr-main">'+esc(t)+'</div><span class="muted">'+relTime(CHECK[k])+'</span></div>';
+  });
+  aHtml+='</div></details></div>';
+
+  return h+stats+repHtml+uHtml+pHtml+aHtml;
+}
+/* ---------------- 视图：我的课程 ---------------- */
+function viewCourses(){
+  var h=pageHead('我的课程','按课程分类整理','点进任意课程，查看任务、公告、复习笔记与小测。');
+  if(!DB.courses.length){ h+='<div class="card">'+emptyBox('还没有课程','去「设置」导入 Moodle 快照，或手动添加课程。')+'<div style="text-align:center"><a class="btn primary" href="#/settings">'+ic('gear')+'去设置导入</a></div></div>'; return h; }
+  var grid='<div class="coursegrid">';
+  DB.courses.forEach(function(c){
+    var as=assignmentsOf(c.id); var ev=eventsOf(c.id); var an=announcementsOf(c.id);
+    var due=as.filter(function(a){return a.duedate && a.duedate>=Date.now()/1000 && a.duedate<=Date.now()/1000+7*86400 && !isDone('assign',a.id);}).length;
+    var evc=ev.filter(function(e){return e.timestart>=Date.now()/1000-86400 && e.timestart<=Date.now()/1000+7*86400 && e.type!=='assign' && !isDone('event',e.id);}).length;
+    var unread=an.filter(function(a){return !isDone('ann',a.id);}).length;
+    var unsub=as.filter(function(a){ var st=subStatus(a.id); var bad=!st||st.status==='not_submitted'||(!st.status&&!st.submitted); return bad&&a.duedate&&!isDone('assign',a.id);}).length;
+    var chips='';
+    if(due) chips+='<span class="chip urgent">'+due+' 项作业截止</span>';
+    if(evc) chips+='<span class="chip soon">'+evc+' 个事件</span>';
+    if(unread) chips+='<span class="chip info">'+unread+' 条公告</span>';
+    if(unsub) chips+='<span class="chip warn">'+unsub+' 项待交</span>';
+    if(!chips) chips='<span class="chip ok">已完成</span>';
+    grid+='<div class="course-card" data-click="course" data-id="'+escAttr(c.id)+'">'
+      +'<div class="cc-top"><div class="cc-tag" style="background:'+courseTagColor(c.id)+'">'+esc(courseShort(c))+'</div><div><div class="cc-name">'+esc(c.fullname||c.name)+'</div><div class="cc-meta">'+(c.shortname?esc(c.shortname):'')+'</div></div></div>'
+      +'<div class="cc-stats">'+chips+'</div></div>';
+  });
+  grid+='</div>';
+  return h+grid;
+}
+
+/* ---------------- 视图：课程详情 ---------------- */
+function viewCourse(cid){
+  var c=courseById(cid);
+  if(!c){ return pageHead('课程详情','未找到该课程','可能已被删除，或数据尚未导入。')+'<div><a class="btn ghost" href="#/courses">返回课程列表</a></div>'; }
+  var as=assignmentsOf(cid).sort(function(a,b){return (a.duedate||9e15)-(b.duedate||9e15);});
+  var ev=eventsOf(cid).sort(function(a,b){return (a.timestart||9e15)-(b.timestart||9e15);});
+  var an=announcementsOf(cid).slice().sort(function(a,b){return (b.timemodified||0)-(a.timemodified||0);});
+  var po=postsOf(cid).slice().sort(function(a,b){return (b.time||0)-(a.time||0);});
+  var pts=pointsOf(cid);
+
+  var actions='<a class="btn ghost sm" href="#/notes/'+escAttr(cid)+'">'+ic('book')+'复习笔记</a>'
+    +'<a class="btn soft sm" href="#/quiz/'+escAttr(cid)+'">'+ic('quiz')+'小测</a>'
+    +(c.url?'<a class="btn ghost sm" href="'+escAttr(c.url)+'" target="_blank" rel="noopener">'+ic('ext')+'Moodle 课程页</a>':'');
+  var h=pageHead(c.shortname||c.fullname, c.fullname||'课程', '进入任意条目可直接打开 Moodle 原页面。', actions);
+
+  var dueCount=as.filter(function(a){return a.duedate>=Date.now()/1000 && !isDone('assign',a.id);}).length;
+  var unread=an.filter(function(a){return !isDone('ann',a.id);}).length;
+  var unsub=as.filter(function(a){ var st=subStatus(a.id); var bad=!st||st.status==='not_submitted'||(!st.status&&!st.submitted); return bad&&!isDone('assign',a.id);}).length;
+  var stats='<div class="statgrid">'
+    +'<div class="stat"><div class="s-num">'+as.length+'</div><div class="s-lab">作业总数</div></div>'
+    +'<div class="stat"><div class="s-num w">'+dueCount+'</div><div class="s-lab">待完成</div></div>'
+    +'<div class="stat"><div class="s-num u">'+unsub+'</div><div class="s-lab">未交（含历史）</div></div>'
+    +'<div class="stat"><div class="s-num b">'+pts.length+'</div><div class="s-lab">考点章节</div></div>'
+    +'</div>';
+
+  var tabs='<div class="tabs"><button class="tab active" data-tab="tasks">任务与截止日期</button><button class="tab" data-tab="ann">公告<span class="cnt">'+an.length+'</span></button><button class="tab" data-tab="posts">老师消息<span class="cnt">'+po.length+'</span></button><button class="tab" data-tab="plan">学习计划</button></div>';
+
+  /* 任务 */
+  var tHtml='<div id="tab-tasks">';
+  if(!as.length) tHtml+='<div class="card">'+emptyBox('这门课暂时没有作业','有新作业时会显示在这里。')+'</div>';
+  as.forEach(function(a){
+    var st=subStatus(a.id);
+    var subChip='<span class="chip neutral">状态未知</span>';
+    if(st){ if(st.submitted||st.status==='submitted') subChip='<span class="chip ok">已提交</span>'; else if(st.status==='graded') subChip='<span class="chip ok">已评分'+(st.grade?' '+st.grade:'')+'</span>'; else if(st.status==='not_submitted') subChip='<span class="chip urgent">未提交</span>'; }
+    var due='';
+    if(a.duedate){ var dl=a.duedate-Date.now()/1000; due='截止 '+fmtTime(fromUnix(a.duedate))+(dl<0?' <span class="chip urgent">已逾期</span>':(dl<3*86400?' <span class="chip urgent">'+fmtDur(dl)+'后截止</span>':' <span class="chip neutral">'+fmtDur(dl)+'后截止</span>')); }
+    tHtml+='<div class="row'+(isDone('assign',a.id)?' task-done':'')+'">'+checkBtn('assign',a.id)
+      +'<div class="r-main"><div class="r-title">'+esc(a.name)+' '+subChip+(isDone('assign',a.id)?'<span class="badge done">已完成</span>':'')+'</div>'
+      +'<div class="r-sub">'+due+(a.intro?' · '+esc(stripHtml(a.intro).slice(0,90)):'')+'</div></div>'
+      +'<div class="r-act">'+linkOut(a.url,'作业页')+'</div></div>';
+  });
+  tHtml+='<div class="section" style="margin-top:20px"><div class="section-h"><h2>日程事件 / 考试</h2></div><div class="card tl-wrap"><div class="tl">';
+  var evs=ev.filter(function(e){return e.type!=='assign';});
+  if(!evs.length) tHtml+='<div class="empty">暂无日程事件</div>';
+  evs.forEach(function(e){
+    var dl=e.timestart-Date.now()/1000;
+    var cls= dl<3*86400?' u':(dl<7*86400?' s':'');
+    tHtml+='<div class="tl-time">'+fmtDate(fromUnix(e.timestart))+'</div><div class="tl-dot'+cls+'"><div class="r-title" style="font-size:14px">'+esc(e.name)+(isDone('event',e.id)?'<span class="badge done" style="margin-left:6px">已完成</span>':'')+'</div><div class="muted" style="font-size:12px">'+fmtTime(fromUnix(e.timestart))+(dl>0?' · '+fmtDur(dl)+'后':(dl<=0?' · 已开始/已结束':''))+'</div></div>';
+  });
+  tHtml+='</div></div></div></div>';
+
+  /* 公告 */
+  var aHtml='<div id="tab-ann" style="display:none"><div class="card">';
+  if(!an.length) aHtml+=emptyBox('暂无公告','');
+  an.forEach(function(n){
+    var unreadFlag=!isDone('ann',n.id)?'<span class="chip info">未读</span>':'';
+    aHtml+='<div class="row'+(isDone('ann',n.id)?' task-done':'')+'">'+checkBtn('ann',n.id)
+      +'<div class="r-main"><div class="r-title">'+esc(n.subject||n.name)+' '+unreadFlag+'</div>'
+      +'<div class="r-sub">'+(n.author?esc(n.author)+' · ':'')+relTime(n.timemodified)+'</div>'
+      +'<div style="font-size:13px;color:var(--ink2);margin-top:6px;white-space:pre-wrap">'+esc(stripHtml(n.message||''))+'</div></div>'
+      +'<div class="r-act">'+linkOut(n.url,'原文')+'</div></div>';
+  });
+  aHtml+='</div></div>';
+
+  /* 老师消息 */
+  var pHtml='<div id="tab-posts" style="display:none"><div class="card">';
+  if(!po.length) pHtml+=emptyBox('暂无论坛消息','老师在教学论坛的发言会出现在这里。');
+  po.forEach(function(p){
+    pHtml+='<div class="row"><div style="color:var(--brand2);margin-top:2px">'+ic('chat')+'</div><div class="r-main"><div class="r-title">'+esc(p.subject||'消息')+' <span class="chip neutral">'+(p.forum?esc(p.forum):'论坛')+'</span></div>'
+      +'<div class="r-sub">'+(p.author?esc(p.author)+' · ':'')+relTime(p.time)+'</div>'
+      +'<div style="font-size:13px;color:var(--ink2);margin-top:6px;white-space:pre-wrap">'+esc(stripHtml(p.message||''))+'</div></div>'
+      +'<div class="r-act">'+linkOut(p.url,'讨论')+'</div></div>';
+  });
+  pHtml+='</div></div>';
+
+  /* 学习计划（按课） */
+  var plan=buildPlan();
+  var pHtml2='<div id="tab-plan" style="display:none">';
+  var found=0;
+  plan.forEach(function(d){
+    var tasks=d.tasks.filter(function(t){ return (t.course&&String(t.course.id)===String(cid)); });
+    if(!tasks.length) return;
+    found++;
+    pHtml2+='<div class="day-block"><div class="day-head"><span class="dh-date">'+fmtDateCN(d.date)+'</span>'+(d.date.getTime()===startOfDay(now()).getTime()?'<span class="chip brand">今天</span>':'')+'</div><div class="day-body">';
+    tasks.forEach(function(t){
+      var tid=t.item?String(t.item.id):''; var done=t.kind==='review'?false:isDone(t.kind,tid);
+      var label=t.kind==='assign'?'完成作业《'+t.item.name+'》· 截止 '+fmtTime(fromUnix(t.item.duedate)):(t.kind==='event'?'准备 '+t.item.name:'复习本课：看笔记 · 做小测');
+      pHtml2+='<div class="mini-row'+(done?' done':'')+'">'+(t.kind==='review'?'<button class="check" data-act="goto-notes" data-id="'+escAttr(cid)+'">'+ic('check')+'</button>':checkBtn(t.kind,tid))+'<div class="mr-main">'+label+'</div></div>';
+    });
+    pHtml2+='</div></div>';
+  });
+  if(!found) pHtml2+='<div class="card">'+emptyBox('本周暂无这门课的计划','有作业或考试时这里会自动安排。')+'</div>';
+  pHtml2+='</div>';
+
+  return h+stats+tabs+tHtml+aHtml+pHtml+pHtml2;
+}
+/* ---------------- AI 客户端（OpenAI 兼容） ---------------- */
+function aiReady(){ return DB.meta.aiEnabled && DB.meta.aiKey && DB.meta.aiBase; }
+function aiFetch(messages, maxTokens){
+  var url=DB.meta.aiBase.replace(/\/+$/,'')+'/chat/completions';
+  return fetch(url,{ method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+DB.meta.aiKey},
+    body:JSON.stringify({model:DB.meta.aiModel||'deepseek-chat',messages:messages,temperature:0.4,max_tokens:maxTokens||1800})
+  }).then(function(r){ if(!r.ok) return r.text().then(function(t){ throw new Error('AI 请求失败 ('+r.status+'): '+t.slice(0,200)); }); return r.json(); })
+  .then(function(j){ var c=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||''; return c; });
+}
+function aiTranslate(text){
+  return aiFetch([{role:'system',content:'你是香港大学生的中文翻译助手。把英文内容翻译成准确、通顺、自然的简体中文；专有名词（课程代码、软件名、人名）保留原文。只输出译文，不要解释。'},
+    {role:'user',content:String(text).slice(0,6000)}], 1200);
+}
+function aiNotes(pt, course){
+  var mods=(pt.mods||[]).map(function(m){return '- '+(m.name||'')+(m.modname?'（'+m.modname+'）':'');}).join('\n')||'（无单独模块）';
+  var prompt='课程：'+(course?course.fullname:'')+'（'+((course&&course.shortname)||'')+'）\n考点：'+pt.title+'\n老师说明/描述：'+(pt.desc||'（无）')+'\n学习材料：\n'+mods
+    +'\n\n请生成「精细中英对照复习笔记」，Markdown 格式：\n## 考点中文名（精翻）\n## Key Points（英文要点 3-6 条）\n## 核心要点（中文，与英文对应）\n## 关键术语中英对照（表格）\n## 复习提示（中文 2-3 条）';
+  return aiFetch([{role:'system',content:'你是认真负责的大学复习笔记助手，输出结构清晰、内容准确的 Markdown。'},
+    {role:'user',content:prompt}], 1600);
+}
+
+/* ---------------- 视图：复习笔记 ---------------- */
+function viewNotes(cid){
+  var c=courseById(cid);
+  if(!c) return pageHead('复习笔记','未找到课程','');
+  var pts=pointsOf(cid);
+  var actions='<a class="btn ghost sm" href="#/course/'+escAttr(cid)+'">'+ic('right')+'返回课程</a>'
+    +'<a class="btn ghost sm" data-act="print">'+ic('dl')+'打印 / 存为 PDF</a>'
+    +'<button class="btn primary sm" data-act="export-notes" data-id="'+escAttr(cid)+'">'+ic('dl')+'下载笔记（Markdown）</button>';
+  var h=pageHead('中英复习笔记', c.fullname||'课程', '按考点整理 · 可下载 Markdown / 打印 PDF · AI 精翻可选', actions);
+  if(!DB.meta.aiEnabled) h+='<div class="card warn" style="margin-bottom:16px">'+ic('spark')+' 未开启 AI 精翻：可在「设置」填入大模型 API Key 后自动生成中英对照笔记；不填也能手动记录。</div>';
+
+  var body='';
+  pts.forEach(function(pt){
+    var nt=(NOTE_TXT[cid]&&NOTE_TXT[cid][pt.id])||{zh:'',en:'',ai:''};
+    var mods=(pt.mods||[]).slice(0,12);
+    var modHtml=mods.length?'<div style="font-size:12.5px;color:var(--ink2);margin-top:8px">'+mods.map(function(m){return '<div>'+ic('folder')+' '+(m.url?'<a class="linkout" href="'+escAttr(m.url)+'" target="_blank" rel="noopener">'+esc(m.name)+'</a>':'<span>'+esc(m.name)+'</span>')+(m.modname?' <span class="muted">'+esc(m.modname)+'</span>':'')+'</div>';}).join('')+'</div>':'<div class="muted" style="margin-top:6px">该考点暂无单独模块</div>';
+    var aiBlock= nt.ai?'<div class="nc-txt" style="border-left:3px solid var(--brand);padding-left:10px">'+esc(nt.ai)+'</div>':'';
+    body+='<div class="note-card"><div class="note-head"><div style="flex:1"><div class="nh-title">'+esc(pt.title)+'</div><div class="nh-sub">'+pt.mods.length+' 个模块 · 考点权重 '+pointWeight(pt).toFixed(1)+'</div></div>'
+      +'<button class="btn soft sm no-print" data-act="ai-note" data-cid="'+escAttr(cid)+'" data-pid="'+escAttr(pt.id)+'">'+ic('spark')+'AI 精翻</button>'
+      +'<button class="btn ghost sm no-print" data-act="toggle-note" data-cid="'+escAttr(cid)+'" data-pid="'+escAttr(pt.id)+'">'+ic('edit')+'编辑</button></div>'
+      +'<div class="note-body"><div class="note-col"><div class="nc-lab">'+ic('book')+' 原文 / 材料</div><div class="nc-txt">'+modHtml+'</div></div>'
+      +'<div class="note-col"><div class="nc-lab">'+ic('spark')+' 中文精翻 / 我的笔记</div>'
+      +(nt.ai?aiBlock:'<div class="muted">点「AI 精翻」自动生成中英对照笔记，或点「编辑」手动记录。</div>')
+      +'</div></div>'
+      +(nt.en||nt.zh?'<div class="note-body" style="border-top:1px solid var(--line)"><div class="note-col"><div class="nc-lab">英文</div><div class="nc-txt">'+esc(nt.en)+'</div></div><div class="note-col"><div class="nc-lab">中文</div><div class="nc-txt">'+esc(nt.zh)+'</div></div></div>':'')
+      +'</div>';
+  });
+  return h+body;
+}
+
+/* 笔记编辑弹窗 */
+function modalNoteEditor(cid,pid){
+  var c=courseById(cid); var pt=pointsOf(cid).find(function(p){return p.id===pid;});
+  var nt=(NOTE_TXT[cid]&&NOTE_TXT[cid][pid])||{zh:'',en:'',ai:''};
+  openModal('<h3>编辑笔记 · '+esc((pt&&pt.title)||'')+'</h3>'
+    +'<div class="field"><label>英文要点</label><textarea id="mne" placeholder="英文要点 / Key points">'+esc(nt.en)+'</textarea></div>'
+    +'<div class="field"><label>中文要点</label><textarea id="mnz" placeholder="中文精翻 / 我的理解">'+esc(nt.zh)+'</textarea></div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" data-act="modal-close">取消</button><button class="btn primary" data-act="note-save" data-cid="'+escAttr(cid)+'" data-pid="'+escAttr(pid)+'">保存</button></div>');
+}
+
+function exportNotesMd(cid){
+  var c=courseById(cid); if(!c) return;
+  var pts=pointsOf(cid);
+  var md='# '+c.fullname+' 复习笔记\n\n> 由「派大星lhm学习助手」生成 · '+fmtDate(now())+'\n\n';
+  pts.forEach(function(pt){
+    var nt=(NOTE_TXT[cid]&&NOTE_TXT[cid][pt.id])||{zh:'',en:'',ai:''};
+    md+='## '+pt.title+'\n\n';
+    if(nt.ai) md+='### AI 精翻\n\n'+nt.ai+'\n\n';
+    if(nt.en) md+='### Key Points (EN)\n\n'+nt.en+'\n\n';
+    if(nt.zh) md+='### 中文要点\n\n'+nt.zh+'\n\n';
+    var mods=(pt.mods||[]);
+    if(mods.length){ md+='### 学习材料\n\n'+mods.map(function(m){return '- '+(m.name||'')+(m.url?' ('+m.url+')':'');}).join('\n')+'\n\n'; }
+  });
+  download(('笔记_'+((c.shortname||c.fullname||'course').replace(/[^\w\u4e00-\u9fa5-]+/g,'_'))+'_'+fmtDate(now())+'.md'), md, 'text/markdown;charset=utf-8');
+  toast('笔记已下载');
+}
+/* ---------------- 视图：小测 ---------------- */
+var QUIZ_STATE=null; /* {mode, questions, i, answers, courseId} */
+
+function basicQuestions(cid){
+  var pts=pointsOf(cid);
+  var allMods=[]; pts.forEach(function(p){ (p.mods||[]).forEach(function(m){ allMods.push({point:p.id, m:m}); }); });
+  var qs=[];
+  pts.forEach(function(p){
+    var mods=p.mods||[];
+    var w=pointWeight(p);
+    var n=Math.max(1, Math.round(2*w));
+    for(var i=0;i<n;i++){
+      if(mods.length>=1 && allMods.length>=4){
+        var ans=mods[i%mods.length];
+        var dists=[];
+        allMods.forEach(function(x){ if(x.point!==p.id && dists.length<3 && x.m.name!==ans.name) dists.push(x.m.name); });
+        if(dists.length<2){ qs.push({point:p.title, type:'自评', stem:'你能回忆出「'+p.title+'」的核心内容吗？', opts:['能，可以顺利回忆','记得一部分','完全没印象'], ans:0, explain:'复习时可以打开笔记逐条对照。'}); }
+        else {
+          var opts=dists.slice(0,3); opts.splice(Math.floor(Math.random()*(opts.length+1)),0,ans.name);
+          qs.push({point:p.title, type:'单选', stem:'以下哪一项属于考点「'+p.title+'」的学习材料？', opts:opts, ans:opts.indexOf(ans.name), explain:'正确答案：'+ans.name+'（'+p.title+' 下的模块）。'});
+        }
+      } else {
+        qs.push({point:p.title, type:'自评', stem:'你能回忆出「'+p.title+'」的核心内容吗？', opts:['能，可以顺利回忆','记得一部分','完全没印象'], ans:0, explain:'复习时可以打开笔记逐条对照。'});
+      }
+    }
+  });
+  return qs;
+}
+
+function aiQuestions(cid, total){
+  var c=courseById(cid); var pts=pointsOf(cid);
+  var ptsJ=pts.map(function(p){ return {point:p.title, desc:p.desc||'', modules:(p.mods||[]).slice(0,15).map(function(m){return m.name;})}; });
+  var totalW=pointTotalWeight(cid);
+  var dist=pts.map(function(p){ return Math.max(1, Math.round(total*pointWeight(p)/totalW)); });
+  var sum=0; dist.forEach(function(n){sum+=n;}); while(sum>total){ var mx=0; for(var i=1;i<dist.length;i++) if(dist[i]>dist[mx]) mx=i; dist[mx]--; sum--; }
+  return aiFetch([{role:'system',content:'你是大学课程出题老师。根据考点出题，题型只可用：单选、多选、判断、填空。题目覆盖全部考点，每个考点的题目数量按该考点内容量比例分配（具体数量见用户输入）。'+
+    '输出严格 JSON 数组，不要任何其他文字，格式：[{"point":"考点名","type":"单选|多选|判断|填空","question":"题目","options":["A. ...","B. ..."]或[]（判断题给["正确","错误"]，填空给[]）,"answer":"正确答案（填空为答案文本）","explain":"解析"}]'},
+    {role:'user',content:'课程：'+c.fullname+'（'+c.shortname+'）\n考点列表：'+JSON.stringify(ptsJ)+'\n每考点题目数量：'+JSON.stringify(dist)+'（总量 '+total+' 题）'}], 4000)
+  .then(function(txt){
+    var t=txt.replace(/```json/gi,'').replace(/```/g,'').trim();
+    var m=t.match(/\[[\s\S]*\]/); if(m) t=m[0];
+    var arr=JSON.parse(t);
+    if(!Array.isArray(arr)||!arr.length) throw new Error('格式错误');
+    return arr.map(function(q,i){ return {point:q.point||'考点', type:q.type||'单选', stem:q.question, opts:q.options||[], ans:(q.type==='填空'? -2 : (q.type==='判断'? (String(q.answer).trim()==='正确'?0:1) : q.options.indexOf(q.answer))), explain:q.explain||'', answerText:(q.type==='填空'?q.answer:null), ai:true}; });
+  });
+}
+
+function viewQuiz(cid){
+  var c=courseById(cid);
+  if(!c) return pageHead('小测','未找到课程','');
+  var h=pageHead('小测 · 覆盖全部考点', c.fullname||'课程', '题目数量按各考点内容量自动分配。', '<a class="btn ghost sm" href="#/course/'+escAttr(cid)+'">'+ic('right')+'返回课程</a>');
+  if(QUIZ_STATE && String(QUIZ_STATE.courseId)===String(cid)) return h+quizRender(cid);
+
+  var log=(QUIZLOG[cid]||[]).slice().reverse();
+  var his=log.length?'<div class="card" style="margin-top:14px"><div class="section-h"><h2>历史成绩</h2></div>'+log.map(function(r){ return '<div class="mini-row"><div class="mr-main">'+fmtTime(fromUnix(r.date))+' · '+r.mode+'</div><span class="chip '+(r.score/r.total>=0.6?'ok':'urgent')+'">'+(r.total?Math.round(r.score/r.total*100):0)+'%</span></div>'; }).join('')+'</div>':'';
+  var body='<div class="card"><div class="section-h"><h2>开始小测</h2></div>'
+    +'<div class="field"><label>题量（按考点量自动分配）</label><select id="qTotal">'+[8,10,12,15,20,30].map(function(n){return '<option value="'+n+'"'+(n===DB.meta.quizTotal?' selected':'')+'>'+n+' 题</option>';}).join('')+'</select></div>';
+  if(aiReady()){
+    body+='<div class="field"><label>出题方式</label><select id="qMode"><option value="ai">AI 智能出题（基于考点生成，带解析）</option><option value="basic">基础自测（离线，从课程材料生成）</option></select></div>';
+  } else {
+    body+='<div class="field"><label>出题方式</label><select id="qMode"><option value="basic">基础自测（离线）</option></select><div class="hint">'+ic('spark')+' 在「设置」填入大模型 API Key 可启用 AI 智能出题。</div></div>';
+  }
+  body+='<button class="btn primary" data-act="start-quiz" data-id="'+escAttr(cid)+'">'+ic('quiz')+'开始小测</button></div>'+his;
+  return h+body;
+}
+
+function quizRender(cid){
+  var q=QUIZ_STATE, idx=q.i, cur=q.questions[idx];
+  var bar=Math.round(idx/q.questions.length*100);
+  var h='<div class="q-bar"><i style="width:'+bar+'%"></i></div>';
+  if(!cur){ /* 结果页 */
+    var score=0; q.answers.forEach(function(a){ if(a===null) return; score+= (a===cur? 0:0); });
+    /* 重新计算 */
+    score=0;
+    for(var k=0;k<q.questions.length;k++){ var a=q.answers[k]; if(a==null) continue; var ok=(q.questions[k].ans===-2)? false : (a===q.questions[k].ans); if(ok) score+=1; else if(q.questions[k].type==='自评' && a===1) score+=0.5; }
+    var pct=Math.round(score/q.questions.length*100);
+    var log=(QUIZLOG[cid]||[]); log.push({date:Date.now()/1000, score:score, total:q.questions.length, mode:q.mode}); QUIZLOG[cid]=log; save();
+    var wrong=q.questions.filter(function(x,i){ var a=q.answers[i]; if(a==null) return false; if(x.ans===-2) return false; return a!==x.ans; });
+    h+='<div class="q-result"><div class="score">'+pct+'<small>%</small></div><div style="color:var(--ink2);margin:6px 0 14px">'+score+' / '+q.questions.length+' 题正确'+(q.mode==='ai'?' · AI 出题':' · 基础自测')+'</div>'
+      +'<div style="display:flex;gap:8px;justify-content:center"><button class="btn primary" data-act="restart-quiz" data-id="'+escAttr(cid)+'">'+ic('refresh')+'再来一次</button><button class="btn ghost" data-act="quiz-home" data-id="'+escAttr(cid)+'">返回小测页</button></div></div>';
+    if(wrong.length){ h+='<div class="card" style="margin-top:16px"><div class="section-h"><h2>错题回顾</h2></div>'+wrong.map(function(x,i){
+      return '<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="q-point">'+esc(x.point)+'</div><div style="font-weight:600">'+esc(x.stem)+'</div><div class="q-answer" style="margin-top:6px">'+ic('checkCol')+' 正确答案：<b>'+esc(x.ans===-2?(x.answerText||''):(x.opts[x.ans]||''))+'</b>'+(x.explain?'<br>'+esc(x.explain):'')+'</div></div>';
+    }).join('')+'</div>'; }
+    return h;
+  }
+  h+='<div class="q-card"><div class="q-point">'+esc(cur.point)+' · '+esc(cur.type)+'</div><div class="q-stem">'+(idx+1)+'. '+esc(cur.stem)+'</div>';
+  h+='<div class="q-opts">'+cur.opts.map(function(o,i){
+    return '<button class="q-opt" data-act="q-opt" data-i="'+i+'"><span class="qk">'+(i+1)+'</span><span>'+esc(o)+'</span></button>';
+  }).join('')+'</div></div>';
+  h+='<div class="muted">第 '+(idx+1)+' / '+q.questions.length+' 题 · 点击选项后立即显示答案</div>';
+  return h;
+}
+
+function quizAnswer(cid, optIdx){
+  var q=QUIZ_STATE, cur=q.questions[q.i];
+  var correct=(cur.ans===-2)?null:(optIdx===cur.ans);
+  q.answers.push(optIdx);
+  q.i++;
+  /* 展示反馈：直接跳到下一题，反馈显示在结果页错题回顾 */
+  save(); rerender();
+}
+/* ---------------- 快照规范化（导入） ---------------- */
+function normalizeSnapshot(o){
+  var d={ courses:o.courses||[], assignments:o.assignments||[], events:o.events||[], announcements:o.announcements||[], posts:o.posts||[], sections:o.sections||[], submissions:o.submissions||{}, meta:{} };
+  d.courses.forEach(function(c){ c.id=String(c.id); if(!c.fullname&&c.name) c.fullname=c.name; });
+  ['assignments','events'].forEach(function(k){ d[k].forEach(function(x){ if(!x.id) x.id=uid(); if(x.course_id!=null) x.course_id=String(x.course_id); }); });
+  d.announcements.forEach(function(x){ if(!x.id) x.id=uid(); if(x.course_id!=null) x.course_id=String(x.course_id); });
+  d.posts.forEach(function(x){ if(!x.id) x.id=uid(); if(x.course_id!=null) x.course_id=String(x.course_id); });
+  d.sections.forEach(function(x){ if(x.course_id!=null) x.course_id=String(x.course_id); });
+  return d;
+}
+function applySnapshot(d, srcLabel){
+  var nd=normalizeSnapshot(d);
+  DB.courses=nd.courses; DB.assignments=nd.assignments; DB.events=nd.events; DB.announcements=nd.announcements; DB.posts=nd.posts; DB.sections=nd.sections; DB.submissions=nd.submissions;
+  DB.meta.updatedAt=Date.now()/1000; DB.meta.source=srcLabel; DB.meta.lastReportWeek=''; DB.meta.lastReportAt=0;
+  /* 清理已失效的勾选 */
+  var valid={};
+  function key(kind,id){ return kind+':'+String(id); }
+  DB.assignments.forEach(function(a){ valid[key('assign',a.id)]=1; });
+  DB.events.forEach(function(e){ valid[key('event',e.id)]=1; });
+  DB.announcements.forEach(function(a){ valid[key('ann',a.id)]=1; });
+  Object.keys(CHECK).forEach(function(k){ if(!valid[k]) delete CHECK[k]; });
+  save();
+}
+
+function importSnapshotJson(text){
+  var o=JSON.parse(text);
+  if(o.format && o.format.indexOf('moodle-assistant')>=0) return applySnapshot(o,'Moodle 快照');
+  if(o.courses && o.assignments) return applySnapshot(o,'数据导入');
+  throw new Error('无法识别的数据格式');
+}
+
+/* ---------------- Moodle REST（wstoken 直连，可选） ---------------- */
+function moodleCall(ws, params){
+  var base=(DB.meta.moodleBase||'https://scemoodle.hkbu.edu.hk').replace(/\/+$/,'');
+  var qs='wstoken='+encodeURIComponent(DB.meta.moodleToken)+'&moodlewsrestformat=json&wsfunction='+encodeURIComponent(ws);
+  Object.keys(params||{}).forEach(function(k){ var v=params[k]; if(Array.isArray(v)) v.forEach(function(x){ qs+='&'+encodeURIComponent(k)+'[]='+encodeURIComponent(x); }); else qs+='&'+encodeURIComponent(k)+'='+encodeURIComponent(v); });
+  return fetch(base+'/webservice/rest/server.php?'+qs).then(function(r){ return r.json(); }).then(function(j){ if(j.exception) throw new Error(j.message||'接口错误'); return j; });
+}
+function moodlePullAll(){
+  var tasks=[];
+  return moodleCall('core_webservice_get_site_info',{}).then(function(info){
+    return moodleCall('core_course_get_enrolled_courses_by_timeline_classification',{classification:'all',limit:100,offset:0,sort:'fullname'}).then(function(cs){
+      var courses=(cs.courses||cs).map(function(c){ return {id:String(c.id), fullname:c.fullname, shortname:c.shortname, url:(DB.meta.moodleBase||'').replace(/\/+$/,'')+'/course/view.php?id='+c.id}; });
+      var ids=courses.map(function(c){return c.id;});
+      if(!ids.length) return {courses:courses, assignments:[], events:[], announcements:[], posts:[], sections:[], submissions:{}};
+      return moodleCall('mod_assign_get_assignments',{courseids:ids}).then(function(a){
+        var assignments=[], submissions={}, aIds=[];
+        (a.courses||[]).forEach(function(c){
+          (c.assignments||[]).forEach(function(x){
+            assignments.push({id:String(x.id), course_id:String(x.course), name:x.name, duedate:x.duedate, url:(DB.meta.moodleBase||'').replace(/\/+$/,'')+'/mod/assign/view.php?id='+x.id, intro:stripHtml(x.intro||'')});
+            aIds.push(String(x.id));
+          });
+        });
+        var subQ=aIds.slice(0,30).map(function(aid){ return moodleCall('mod_assign_get_submission_status',{assignmentid:aid}).then(function(s){
+          var st=s.lastattempt? s.lastattempt.submission? 'submitted':'not_submitted' : (s.submissionstatus||'unknown');
+          var gr=s.lastattempt&&s.lastattempt.grading? s.lastattempt.grading:null;
+          submissions[aid]={status:st, submitted:st==='submitted', graded:!!gr, grade:gr&&gr.grade?String(gr.grade):''};
+        }).catch(function(){ return null; }); });
+        return Promise.all(subQ).then(function(){ return {courses:courses, assignments:assignments, submissions:submissions}; });
+      });
+    }).then(function(part){
+      var ids=part.courses.map(function(c){return c.id;});
+      var evP= moodleCall('core_calendar_get_action_events_by_timesort',{timesort:Math.floor(Date.now()/1000)-86400,limitnum:200}).then(function(ev){
+        return (ev.events||[]).map(function(e){ return {id:'ev'+e.id, course_id:e.course?String(e.course.id):'', name:e.name, timestart:e.timestart, type:e.eventtype||'event', url:e.url||''}; });
+      });
+      var secP=Promise.all(ids.map(function(cid){ return moodleCall('core_course_get_contents',{courseid:cid}).then(function(sects){
+        return sects.map(function(s){ return {course_id:String(cid), section:s.id, name:s.name||'', modules:(s.modules||[]).map(function(m){ return {id:String(m.id), name:m.name||'', modname:m.modname||m.module||'', url:m.url||''}; }).filter(function(m){return m.name;})}; });
+      }).catch(function(){ return []; }); })).then(function(ss){ return [].concat.apply([],ss); });
+      return Promise.all([evP,secP]).then(function(r){ part.events=r[0]; part.sections=r[1]; part.announcements=[]; part.posts=[]; return part; });
+    });
+  }).then(function(part){
+    applySnapshot(part,'Moodle 令牌直连');
+  });
+}
+/* ---------------- 快照生成器代码（在 Moodle 页面运行） ---------------- */
+var SNAP_CODE = [
+"(async function(){",
+"  var log=[];",
+"  function push(s){ log.push(s); console.log('[Moodle抓取]', s); }",
+"  var B=location.origin;",
+"  var sleep=function(ms){ return new Promise(function(r){ setTimeout(r,ms); }); };",
+"  function get(u){ return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status+' '+u); return r.text(); }); }",
+"  function doc(u){ return get(u).then(function(t){ return new DOMParser().parseFromString(t,'text/html'); }); }",
+"  function clean(s){ return String(s==null?'':s).replace(/\\s+/g,' ').trim(); }",
+"  function findTime(el){ var t=el&&el.querySelector('time'); if(t&&t.getAttribute('datetime')){ var ts=Date.parse(t.getAttribute('datetime')); if(!isNaN(ts)) return Math.floor(ts/1000); } return null; }",
+"  function parseDate(txt){ txt=clean(txt||''); if(!txt) return null; var m=txt.match(/(\\d{4})[\\/-](\\d{1,2})[\\/-](\\d{1,2})[^\\d]*(\\d{1,2}):?(\\d{2})?/); if(m){ var d=new Date(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),0); return Math.floor(d.getTime()/1000); } return null; }",
+"  function parseICS(t){ var evs=[], rx=/BEGIN:VEVENT([\\s\\S]*?)END:VEVENT/g, m; while((m=rx.exec(t))){ var b=m[1]; function val(k){ var x=b.match(new RegExp('^'+k+':(.*)$','m')); return x?x[1].trim():''; } function val2(k){ var x=b.match(new RegExp('^'+k+';[^:]*:(.*)$','m')); return x?x[1].trim():''; }",
+"    var ds=val('DTSTART')||val2('DTSTART'); if(!ds) continue; var ts; if(/Z$/.test(ds)){ ts=Date.parse(ds)/1000; } else { var mm=ds.match(/^(\\d{4})(\\d{2})(\\d{2})T?(\\d{2})?(\\d{2})?(\\d{2})?/); if(mm){ ts=Math.floor(new Date(+mm[1],+mm[2]-1,+mm[3],+(mm[4]||0),+(mm[5]||0),+(mm[6]||0)).getTime()/1000); } }",
+"    if(!ts) continue; evs.push({name:val('SUMMARY')||'(事件)', timestart:ts, description:val('DESCRIPTION'), url:val('URL'), categories:val('CATEGORIES')});",
+"  } return evs; }",
+"  var out={format:'moodle-assistant-snapshot',version:1,generated_at:new Date().toISOString(),base_url:B,courses:[],events:[],assignments:[],announcements:[],posts:[],sections:[],submissions:{}};",
+"  function courseIdOf(txt){ txt=String(txt||''); for(var i=0;i<out.courses.length;i++){ var c=out.courses[i]; if(txt.indexOf(c.shortname)>-1 || txt.indexOf(c.fullname)>-1) return c.id; } return ''; }",
+"  var badge=document.createElement('div'); badge.style.cssText='position:fixed;top:10px;right:10px;z-index:99999;background:#0b5e4b;color:#fff;padding:12px 16px;border-radius:10px;font:13px/1.6 sans-serif;max-width:340px;max-height:60vh;overflow:auto;box-shadow:0 8px 30px rgba(0,0,0,.35)';",
+"  badge.innerHTML='<b style=\"font-size:14px\">Moodle 抓取中…</b><div style=\"margin-top:6px\"></div>'; document.body.appendChild(badge);",
+"  function show(){ badge.querySelector('div').innerHTML=log.slice(-12).map(function(s){ return '<div>'+s.replace(/</g,'&lt;')+'</div>'; }).join(''); }",
+"  try{",
+"    push('开始抓取 ' + B); show();",
+"    var hp=await doc(B+'/course/index.php');",
+"    var seen={};",
+"    hp.querySelectorAll('a[href*=\"course/view.php?id=\"]').forEach(function(a){ var m=(a.getAttribute('href')||'').match(/course\\/view\\.php\\?id=(\\d+)/); if(m && !seen[m[1]]){ seen[m[1]]=1; var nm=clean(a.textContent)||clean(a.getAttribute('title'))||''; if(nm && !/\\d+$/.test(nm)) out.courses.push({id:String(m[1]), name:nm}); } });",
+"    if(!out.courses.length){ var mp=await doc(B+'/my/'); mp.querySelectorAll('a[href*=\"course/view.php?id=\"]').forEach(function(a){ var m=(a.getAttribute('href')||'').match(/course\\/view\\.php\\?id=(\\d+)/); if(m && !seen[m[1]]){ seen[m[1]]=1; out.courses.push({id:String(m[1]), name:clean(a.textContent)||''}); } }); }",
+"    push('发现课程 ' + out.courses.length + ' 门'); show();",
+"    try{ var ics=await get(B+'/calendar/export.php?preset_what=all&preset_time=recentupcoming'); var evs=parseICS(ics); evs.forEach(function(e){ out.events.push({id:'ev'+Math.random().toString(36).slice(2,8), course_id:courseIdOf(e.categories+' '+(e.description||'')), name:e.name, timestart:e.timestart, type:'event', url:e.url||''}); }); push('日历事件 ' + evs.length + ' 条'); }catch(e){ push('日历抓取失败：' + e.message); }",
+"    show();",
+"    for(var i=0;i<out.courses.length;i++){",
+"      var c=out.courses[i];",
+"      try{",
+"        var cp=await doc(B+'/course/view.php?id='+c.id);",
+"        var full=null, short=null;",
+"        var h1=cp.querySelector('#page-header h1, .page-header-headings h1'); if(h1){ full=clean(h1.textContent); }",
+"        if(full){ out.courses[i].fullname=full; }",
+"        var crumb=cp.querySelector('.breadcrumb-item:last-child, [itemprop=\"title\"]'); if(crumb){ var s=clean(crumb.textContent); if(s && s!==full) out.courses[i].shortname=s; }",
+"        cp.querySelectorAll('li.section').forEach(function(sec){ var ne=sec.querySelector('.sectionname'); var nm=ne?clean(ne.textContent).replace(/^第\\d+节\\s*|^Section\\s*\\d+\\s*/i,''):''; var mods=[]; sec.querySelectorAll('.activity').forEach(function(act){ var al=act.querySelector('a.aalink')||act.querySelector('a[href*=\"/mod/\"]'); if(!al) return; var href=al.getAttribute('href')||''; var m=href.match(/\\/mod\\/(\\w+)\\/view\\.php\\?id=(\\d+)/); if(m){ mods.push({id:String(m[2]), modname:m[1], name:clean(al.textContent), url:new URL(href,B).href}); } }); out.sections.push({course_id:String(c.id), section:sec.getAttribute('data-id')||String(out.sections.length+1), name:nm, modules:mods}); });",
+"        push(c.name+'：小节 ' + out.sections.filter(function(s){return s.course_id===String(c.id);}).length + ' 个');",
+"        var ap=await doc(B+'/mod/assign/index.php?id='+c.id);",
+"        ap.querySelectorAll('table tbody tr').forEach(function(tr){ var a=tr.querySelector('a[href*=\"mod/assign/view.php?id=\"]'); if(!a) return; var m=(a.getAttribute('href')||'').match(/id=(\\d+)/); if(!m) return; var tds=tr.querySelectorAll('td'); var duedate=null, status='unknown', aid=String(m[1]); for(var t=0;t<tds.length;t++){ var txt=clean(tds[t].textContent); if(/20\\d{2}/.test(txt) && duedate==null){ duedate=parseDate(txt); } if(/submitted|graded|not submitted|no submission|已提交|已评分|未提交/i.test(txt)){ var lt=txt.toLowerCase(); if(/graded/i.test(lt)) status='graded'; else if(/submitted/i.test(lt)) status='submitted'; else status='not_submitted'; } } var aidx=out.assignments.findIndex(function(x){ return x.id===aid; }); if(aidx<0){ out.assignments.push({id:aid, course_id:String(c.id), name:clean(a.textContent), duedate:duedate, url:new URL(a.getAttribute('href'),B).href}); aidx=out.assignments.length-1; } out.submissions[aid]={status:status, submitted:(status==='submitted'||status==='graded'), graded:(status==='graded')}; });",
+"        push(c.name+'：作业 ' + out.assignments.filter(function(a){return a.course_id===String(c.id);}).length + ' 项');",
+"        var fp=await doc(B+'/mod/forum/index.php?id='+c.id);",
+"        var forums=[]; fp.querySelectorAll('a[href*=\"mod/forum/view.php?f=\"]').forEach(function(a){ var m=(a.getAttribute('href')||'').match(/f=(\\d+)/); if(m){ forums.push({id:m[1], name:clean(a.textContent), url:new URL(a.getAttribute('href'),B).href}); } });",
+"        var isAnn=function(n){ return /announce|公告|通知/i.test(n); };",
+"        for(var f=0;f<forums.length && f<6;f++){ try{ var vp=await doc(forums[f].url); var disc=[]; vp.querySelectorAll('tr.discussion').forEach(function(tr){ var al=tr.querySelector('a[href*=\"mod/forum/discuss.php?d=\"]'); if(!al) return; var m=(al.getAttribute('href')||'').match(/d=(\\d+)/); if(!m) return; var t=findTime(tr); disc.push({id:'d'+m[1], subject:clean(al.textContent), url:new URL(al.getAttribute('href'),B).href, time:t, author:clean(tr.querySelector('.author, [data-region=\"author\"]')? (tr.querySelector('.author, [data-region=\"author\"]').textContent):'') }); }); for(var d=0;d<disc.length && d<12;d++){ try{ var dp=await doc(disc[d].url); var posts=[]; dp.querySelectorAll('.forumpost').forEach(function(p){ var al=p.querySelector('a[href*=\"discuss.php?d=\"]'); var subj=al?clean(al.textContent):disc[d].subject; var authorEl=p.querySelector('.author, [data-region=\"author\"]'); var author=authorEl?clean(authorEl.textContent):''; var msgEl=p.querySelector('.content, .post-content, .message'); var msg=msgEl?msgEl.textContent.trim():''; var t=findTime(p)||disc[d].time; posts.push({id:'p'+Math.random().toString(36).slice(2,8), course_id:String(c.id), forum:forums[f].name, subject:subj, message:msg, author:author, time:t, url:disc[d].url}); }); if(isAnn(forums[f].name)) out.announcements=out.announcements.concat(posts); else out.posts=out.posts.concat(posts); }catch(e){ push('讨论抓取失败：'+e.message); } } }catch(e){ push('论坛抓取失败：'+e.message); } }",
+"        push(c.name+'：完成');",
+"      }catch(e){ push(c.name+' 失败：'+e.message); }",
+"      show(); await sleep(150);",
+"    }",
+"    push('整理完成，共 '+out.assignments.length+' 作业、'+out.events.length+' 事件、'+out.announcements.length+' 公告、'+out.posts.length+' 老师消息');",
+"    var j=JSON.stringify(out,null,1);",
+"    var blob=new Blob([j],{type:'application/json'}); var u=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=u; a.download='moodle_snapshot_'+new Date().toISOString().slice(0,10)+'.json'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); },500);",
+"    badge.innerHTML='<b style=\"color:#b8f5dc\">✓ 完成！文件已下载</b><div style=\"margin-top:4px\">若浏览器未自动下载，请检查通知栏。文件名为 moodle_snapshot_日期.json</div>';",
+"  }catch(e){ badge.innerHTML='<b style=\"color:#ffd0c8\">抓取出错</b><div>'+String(e.message||e).replace(/</g,'&lt;')+'</div>'; }",
+"  show();",
+"})();"
+].join('\n');
+/* ---------------- 视图：设置 ---------------- */
+function viewSettings(){
+  var h=pageHead('设置','数据接入与 AI 引擎','你的 Moodle 数据从这里进来。凭据只保存在本设备浏览器中。');
+
+  /* 数据接入 */
+  h+='<div class="section"><div class="section-h"><h2>数据接入</h2><span class="sub">'+freshLabel()+'</span><span class="spacer"></span>'
+    +'<button class="btn ghost sm" data-act="export-data">'+ic('dl')+'导出全部数据</button>'
+    +'<button class="btn danger sm" data-act="wipe">'+ic('trash')+'清空数据</button></div>';
+
+  h+='<details class="acc" open><summary>'+ic('dl')+'① 导入 Moodle 快照（推荐，学校 SSO 下唯一全自动方式）</summary><div class="acc-body">'
+    +'<div style="font-size:13.5px;line-height:1.9;margin-bottom:12px">学校 Moodle 用 SSO + 验证码登录，软件无法直接代替你登录。做法：在电脑浏览器登录 Moodle 后，运行下方「抓取工具」里的代码，自动收集全部课程、截止日期、公告、老师消息和作业提交状态，下载一个 JSON 文件；再把这个文件导入这里（或传到平板上导入）。</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<label class="btn primary">'+ic('dl')+'选择快照文件（JSON）<input type="file" accept=".json,application/json" style="display:none" data-act="import-file"></label>'
+    +'<button class="btn ghost" data-act="import-paste">'+ic('edit')+'粘贴 JSON 文本</button>'
+    +'</div></div></details>';
+
+  h+='<details class="acc"><summary>'+ic('gear')+'② Moodle 令牌直连（可选：拿到 wstoken 后全自动）</summary><div class="acc-body">'
+    +'<div class="hint" style="margin-bottom:10px">如果学校给你的账号开通了 Web Service 令牌（wstoken），填入后应用可直接读取 Moodle 并自动核对提交状态，无需手动抓取。普通同学通常没有，先用方式 ① 即可。</div>'
+    +'<div class="field"><label>Moodle 站点地址</label><input id="setBase" value="'+escAttr(DB.meta.moodleBase)+'" placeholder="https://scemoodle.hkbu.edu.hk"></div>'
+    +'<div class="field"><label>wstoken 令牌</label><input id="setToken" type="password" value="'+escAttr(DB.meta.moodleToken)+'" placeholder="粘贴 Moodle 令牌"></div>'
+    +'<button class="btn primary" data-act="save-token">保存并测试连接</button> <button class="btn soft" data-act="pull-moodle">'+ic('refresh')+'立即拉取全部数据</button>'
+    +'</div></details>';
+
+  h+='<details class="acc"><summary>'+ic('plus')+'③ 手动添加（少量补充）</summary><div class="acc-body">'
+    +'<button class="btn ghost sm" data-act="add-course">添加课程</button> '
+    +'<button class="btn ghost sm" data-act="add-assign">添加作业</button> '
+    +'<button class="btn ghost sm" data-act="add-event">添加考试/事件</button>'
+    +'</div></details>';
+
+  h+='<details class="acc"><summary>'+ic('spark')+'抓取工具（在 Moodle 页面运行，一键生成快照）</summary><div class="acc-body">'
+    +'<ol style="font-size:13.5px;line-height:2;padding-left:18px;margin-bottom:10px">'
+    +'<li>在电脑浏览器打开 <a class="linkout" href="https://scemoodle.hkbu.edu.hk" target="_blank" rel="noopener">scemoodle.hkbu.edu.hk</a>，点「HKBU Staff/Student Login」用你的 <b>SSO 账号（学号 25670492）</b> 正常登录（若提示无权，选「Other Eligible User」用 SCE 学号+密码登录）；</li>'
+    +'<li>在课程页面按 <b>F12</b> 打开开发者工具，切到 <b>Console（控制台）</b> 标签；</li>'
+    +'<li>点下方「复制代码」，粘贴到控制台后按 <b>回车</b>；</li>'
+    +'<li>等待 1~2 分钟，浏览器会自动下载 <b>moodle_snapshot_日期.json</b>；</li>'
+    +'<li>回到本应用，用「选择快照文件」导入即可（平板可直接传文件导入）。</li>'
+    +'</ol>'
+    +'<textarea readonly style="width:100%;height:150px;font:11px/1.45 monospace;padding:10px;border:1px solid var(--line2);border-radius:9px;background:#F7F9F6;color:#2a3b34;white-space:pre;overflow:auto" id="snapCode">'+esc(SNAP_CODE)+'</textarea>'
+    +'<div style="margin-top:8px;display:flex;gap:8px"><button class="btn primary sm" data-act="copy-snap">'+ic('dl')+'复制代码</button><button class="btn ghost sm" data-act="download-snap">下载抓取工具页（HTML）</button></div>'
+    +'<div class="hint" style="margin-top:8px">每周刷新：重新登录 Moodle → 再跑一次代码 → 重新导入，作业提交状态会自动更新。</div>'
+    +'</div></details>';
+  h+='</div>';
+
+  /* AI 引擎 */
+  h+='<div class="section"><div class="section-h"><h2>AI 引擎（可选）</h2><span class="sub">用于中文精翻笔记、智能出题</span></div><div class="card">'
+    +'<div class="field"><label>启用 AI（OpenAI 兼容接口）</label><select id="aiOn"><option value="1"'+(DB.meta.aiEnabled?' selected':'')+'>启用</option><option value="0"'+(DB.meta.aiEnabled?'':' selected')+'>关闭（用内置规则引擎）</option></select></div>'
+    +'<div class="form-grid"><div class="field"><label>接口地址（Base URL）</label><input id="aiBase" value="'+escAttr(DB.meta.aiBase)+'" placeholder="https://api.deepseek.com/v1"></div>'
+    +'<div class="field"><label>模型名</label><input id="aiModel" value="'+escAttr(DB.meta.aiModel)+'" placeholder="deepseek-chat"></div></div>'
+    +'<div class="field"><label>API Key（只存本设备）</label><input id="aiKey" type="password" value="'+escAttr(DB.meta.aiKey)+'" placeholder="sk-..."></div>'
+    +'<div class="field"><label>小测默认题量</label><select id="aiTotal">'+[8,10,12,15,20,30].map(function(n){return '<option value="'+n+'"'+(n===DB.meta.quizTotal?' selected':'')+'>'+n+' 题</option>';}).join('')+'</select></div>'
+    +'<div style="display:flex;gap:8px"><button class="btn primary" data-act="save-ai">保存设置</button><button class="btn ghost" data-act="test-ai">'+ic('spark')+'测试连接</button></div>'
+    +'<div class="hint" style="margin-top:10px">支持 DeepSeek / 火山方舟 / 智谱 / OpenAI 等任意 OpenAI 兼容接口。不填也可以正常使用（学习计划、基础自测、手动笔记都在本地运行）。</div>'
+    +'</div></div>';
+
+  /* 关于 */
+  h+='<div class="section"><div class="section-h"><h2>关于</h2></div><div class="card" style="font-size:13px;color:var(--ink2);line-height:2">'
+    +'本应用为个人学习助手：自动整理 Moodle 的截止日期、公告与老师消息，生成每周周报与每日学习计划；打钩后不再提醒；每门课有中英复习笔记与小测。'
+    +'<br>数据只保存在本设备浏览器的本地存储中，不上传任何服务器；Moodle 抓取在你自己已登录的浏览器里完成。'
+    +'<br>HKBU Moodle 使用 SSO 登录，请勿把密码交给任何第三方软件。'
+    +'</div></div>';
+  return h;
+}
+/* ---------------- 答题流程（反馈式） ---------------- */
+function quizAnswer(cid, optIdx){
+  var q=QUIZ_STATE, cur=q.questions[q.i];
+  if(q.answers[q.i]!=null) return;
+  var correct=(cur.ans===-2)?null:(optIdx===cur.ans);
+  q.answers[q.i]=optIdx;
+  q.fb={idx:q.i, optIdx:optIdx, correct:correct, explain:cur.explain||'', ansTxt:(cur.ans===-2?(cur.answerText||''):(cur.opts[cur.ans]||'')), type:cur.type};
+  save(); rerender();
+}
+function quizNext(cid){ var q=QUIZ_STATE; q.i++; q.fb=null; save(); rerender(); }
+
+/* 重写 quizRender：带逐题反馈 */
+function quizRender(cid){
+  var q=QUIZ_STATE;
+  if(q.i>=q.questions.length){ return quizResultHtml(cid); }
+  var cur=q.questions[q.i];
+  var bar=Math.round(q.i/q.questions.length*100);
+  var h='<div class="q-bar"><i style="width:'+bar+'%"></i></div>';
+  var fb=q.fb;
+  h+='<div class="q-card"><div class="q-point">'+esc(cur.point)+' · '+esc(cur.type)+' · 第 '+(q.i+1)+' / '+q.questions.length+' 题</div><div class="q-stem">'+esc(cur.stem)+'</div>';
+  if(cur.type==='填空'){
+    h+='<div class="field" style="margin:10px 0"><input id="qFill" placeholder="输入你的答案" '+(fb?'disabled value="'+escAttr(q.answers[q.i]===null?'':q.answers[q.i])+'"':'')+'></div>';
+    if(fb){ h+='<div class="q-answer">'+ic('checkCol')+' 参考答案：<b>'+esc(fb.ansTxt)+'</b>（请自行对照）'+(fb.explain?'<br>'+esc(fb.explain):'')+'</div>'; }
+  } else {
+    h+='<div class="q-opts">'+cur.opts.map(function(o,i){
+      var cls='';
+      if(fb){ if(i===fb.optIdx) cls= fb.correct? ' correct':' wrong'; else if(i===cur.ans) cls=' correct'; }
+      else if(q.answers[q.i]!=null && i===q.answers[q.i]) cls=' sel';
+      return '<button class="q-opt'+cls+'" data-act="q-opt" data-i="'+i+'"'+(fb?' disabled':'')+'><span class="qk">'+(i+1)+'</span><span>'+esc(o)+'</span></button>';
+    }).join('')+'</div>';
+    if(fb){ h+='<div class="q-answer">'+(fb.correct?'<b style="color:var(--ok)">回答正确</b>':'<b style="color:var(--danger)">回答错误</b>')+' · 正确答案：<b>'+esc(fb.ansTxt)+'</b>'+(fb.explain?'<br>'+esc(fb.explain):'')+'</div>'; }
+  }
+  h+='</div>';
+  if(fb){ h+='<div style="text-align:right"><button class="btn primary" data-act="q-next">下一题 '+ic('right')+'</button></div>'; }
+  else if(cur.type==='填空'){ h+='<div style="text-align:right"><button class="btn primary" data-act="q-fill">提交答案</button></div>'; }
+  return h;
+}
+function quizResultHtml(cid){
+  var q=QUIZ_STATE; var score=0;
+  for(var k=0;k<q.questions.length;k++){ var a=q.answers[k]; if(a==null) continue; var qq=q.questions[k];
+    if(qq.ans===-2){ score+=0; continue; } if(a===qq.ans) score+=1; else if(qq.type==='自评' && a===1) score+=0.5; }
+  var pct=Math.round(score/q.questions.length*100);
+  var log=(QUIZLOG[cid]||[]); log.push({date:Date.now()/1000, score:score, total:q.questions.length, mode:q.mode}); QUIZLOG[cid]=log; save();
+  var h='<div class="q-result"><div class="score">'+pct+'<small>%</small></div>'
+    +'<div style="color:var(--ink2);margin:6px 0 14px">'+score+' / '+q.questions.length+' 题'+(q.mode==='ai'?' · AI 出题':' · 基础自测')+'</div>'
+    +'<div style="display:flex;gap:8px;justify-content:center"><button class="btn primary" data-act="restart-quiz" data-id="'+escAttr(cid)+'">'+ic('refresh')+'再来一次</button><button class="btn ghost" data-act="quiz-home" data-id="'+escAttr(cid)+'">返回小测页</button></div></div>';
+  var wrong=[];
+  for(var i=0;i<q.questions.length;i++){ var a=q.answers[i]; if(a==null||q.questions[i].ans===-2) continue; if(a!==q.questions[i].ans) wrong.push(i); }
+  if(wrong.length){ h+='<div class="card" style="margin-top:16px"><div class="section-h"><h2>错题回顾</h2></div>'+wrong.map(function(idx){ var x=q.questions[idx];
+    return '<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="q-point">'+esc(x.point)+'</div><div style="font-weight:600">'+esc(x.stem)+'</div><div class="q-answer" style="margin-top:6px">'+ic('checkCol')+' 正确答案：<b>'+esc(x.ans===-2?(x.answerText||''):(x.opts[x.ans]||''))+'</b>'+(x.explain?'<br>'+esc(x.explain):'')+'</div></div>';
+  }).join('')+'</div>'; }
+  return h;
+}
+
+/* ---------------- 手动添加 ---------------- */
+function modalAddCourse(){
+  openModal('<h3>添加课程</h3>'
+    +'<div class="field"><label>课程名称</label><input id="acName" placeholder="如：COMP 7070 商业智能"></div>'
+    +'<div class="field"><label>课程代号（可选）</label><input id="acShort" placeholder="如：COMP7070"></div>'
+    +'<div class="field"><label>Moodle 课程页链接（可选）</label><input id="acUrl" placeholder="https://scemoodle.hkbu.edu.hk/course/view.php?id=123"></div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" data-act="modal-close">取消</button><button class="btn primary" data-act="save-course">保存</button></div>');
+}
+function modalAddAssign(){
+  var opts=DB.courses.map(function(c){return '<option value="'+escAttr(c.id)+'">'+esc(c.fullname||c.name)+'</option>';}).join('');
+  openModal('<h3>添加作业</h3>'
+    +'<div class="field"><label>所属课程</label><select id="aaCourse">'+(opts||'<option value="">（请先添加课程）</option>')+'</select></div>'
+    +'<div class="field"><label>作业名称</label><input id="aaName" placeholder="Assignment 3"></div>'
+    +'<div class="field"><label>截止时间</label><input id="aaDue" type="datetime-local"></div>'
+    +'<div class="field"><label>作业页链接（可选）</label><input id="aaUrl" placeholder="https://.../mod/assign/view.php?id="></div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" data-act="modal-close">取消</button><button class="btn primary" data-act="save-assign">保存</button></div>');
+}
+function modalAddEvent(){
+  var opts=DB.courses.map(function(c){return '<option value="'+escAttr(c.id)+'">'+esc(c.fullname||c.name)+'</option>';}).join('');
+  openModal('<h3>添加考试 / 事件</h3>'
+    +'<div class="field"><label>所属课程</label><select id="aeCourse">'+(opts||'<option value="">（请先添加课程）</option>')+'</select></div>'
+    +'<div class="field"><label>事件名称</label><input id="aeName" placeholder="期中考 / 期末考"></div>'
+    +'<div class="field"><label>开始时间</label><input id="aeTime" type="datetime-local"></div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" data-act="modal-close">取消</button><button class="btn primary" data-act="save-event">保存</button></div>');
+}
+function openModal(html){ var m=$('#modal'); m.innerHTML='<div class="modal-card">'+html+'</div>'; m.classList.add('open'); }
+function closeModal(){ $('#modal').classList.remove('open'); $('#modal').innerHTML=''; }
+
+/* ---------------- 弹窗：确认 ---------------- */
+function confirmBox(msg, act, payload){
+  openModal('<h3>确认操作</h3><div style="font-size:14px;line-height:1.8;margin-bottom:14px">'+esc(msg)+'</div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" data-act="modal-close">取消</button><button class="btn danger" data-act="'+act+'" '+(payload? 'data-id="'+escAttr(payload)+'"':'')+'>确认</button></div>');
+}
+
+/* ---------------- 抓取工具页（HTML） ---------------- */
+function buildSnapPage(){
+  return '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Moodle 快照抓取工具</title>'
+    +'<style>body{font-family:system-ui,"Microsoft YaHei",sans-serif;max-width:760px;margin:0 auto;padding:26px 18px;color:#1C2A24;background:#F2F5F0;line-height:1.8}'
+    +'h1{font-size:22px}.step{background:#fff;border:1px solid #DCE4DB;border-radius:12px;padding:14px 16px;margin-bottom:12px}'
+    +'.step b{color:#0B5E4B}textarea{width:100%;height:180px;font:11px/1.45 monospace;padding:10px;border:1px solid #C9D4C8;border-radius:9px;background:#F7F9F6;white-space:pre;overflow:auto}'
+    +'button{background:#0E7A5F;color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:15px;cursor:pointer}.warn{background:#FFFCF4;border:1px solid #EBD9AE;border-radius:12px;padding:12px 16px;font-size:13.5px;color:#7A4E16;margin-bottom:14px}</style></head><body>'
+    +'<h1>Moodle 快照抓取工具</h1><p>在 <b>已登录</b> 的 HKBU Moodle 页面上运行，自动收集：课程、截止日期、公告、老师消息、作业提交状态、课程章节（考点）。</p>'
+    +'<div class="warn">只会读取你自己的课程数据并在浏览器内生成文件，不经过任何服务器。你的密码只输入在学校官方登录页。</div>'
+    +'<div class="step"><b>第 1 步：登录 Moodle</b><br>打开 scemoodle.hkbu.edu.hk，用 HKBU Staff/Student Login（学号 + 密码）登录，进入任意课程页面。</div>'
+    +'<div class="step"><b>第 2 步：打开控制台</b><br>按 F12（或 Ctrl+Shift+I），点上方 <b>Console / 控制台</b> 标签。</div>'
+    +'<div class="step"><b>第 3 步：粘贴并运行</b><br>点下方按钮复制代码，粘贴进控制台，按回车。等待 1~2 分钟。</div>'
+    +'<div class="step"><b>第 4 步：导入应用</b><br>浏览器会自动下载 moodle_snapshot_日期.json。把它导入「派大星lhm学习助手」的 设置 → 数据接入。</div>'
+    +'<button onclick="copySnap()">复制代码</button>'
+    +'<p style="font-size:12.5px;color:#8A988F">每两周或每周一刷新一次：重复第 1~4 步即可，作业提交状态会跟着更新。</p>'
+    +'<textarea readonly id="code">'+esc(SNAP_CODE)+'</textarea>'
+    +'<script>function copySnap(){var t=document.getElementById("code");t.select();t.setSelectionRange(0,99999);try{document.execCommand("copy");alert("代码已复制，去控制台粘贴并回车");}catch(e){navigator.clipboard.writeText(t.value).then(function(){alert("代码已复制");});}}<\/script>'
+    +'</body></html>';
+}
+/* ---------------- 路由 ---------------- */
+function route(){
+  var hash=location.hash||'#/today';
+  var parts=hash.split('/'); var view=parts[1]||'today'; var id=parts[2]||'';
+  var main=$('#main');
+  if(view==='today') main.innerHTML=viewToday();
+  else if(view==='courses') main.innerHTML=viewCourses();
+  else if(view==='course') main.innerHTML=viewCourse(id);
+  else if(view==='notes') main.innerHTML=viewNotes(id);
+  else if(view==='quiz') main.innerHTML=viewQuiz(id);
+  else if(view==='settings') main.innerHTML=viewSettings();
+  else { location.hash='#/today'; return; }
+  renderNav();
+  window.scrollTo(0,0);
+}
+function rerender(){ route(); }
+
+/* ---------------- 全局事件 ---------------- */
+document.addEventListener('click', function(e){
+  var t=e.target;
+  var actEl=t.closest? t.closest('[data-act]'):null;
+  var clickEl=t.closest? t.closest('[data-click]'):null;
+  if(clickEl){ e.preventDefault();
+    var cid=clickEl.getAttribute('data-id');
+    var kind=clickEl.getAttribute('data-click');
+    if(kind==='course') location.hash='#/course/'+cid;
+    else if(kind==='note') location.hash='#/notes/'+cid;
+    else if(kind==='quiz') location.hash='#/quiz/'+cid;
+    return;
+  }
+  if(actEl){ var act=actEl.getAttribute('data-act'); handleAct(act, actEl, e); return; }
+  var tabEl=t.closest? t.closest('.tab'):null;
+  if(tabEl){ var name=tabEl.getAttribute('data-tab');
+    $all('.tab').forEach(function(x){ x.classList.toggle('active', x===tabEl); });
+    ['tasks','ann','posts','plan'].forEach(function(k){ var el=document.getElementById('tab-'+k); if(el) el.style.display=(k===name?'':'none'); });
+    return;
+  }
+});
+document.addEventListener('change', function(e){
+  var t=e.target;
+  if(t && t.getAttribute&&t.getAttribute('data-act')==='import-file' && t.files && t.files[0]){
+    var fr=new FileReader();
+    fr.onload=function(){ try{ importSnapshotJson(String(fr.result)); toast('导入成功：'+DB.courses.length+' 门课程'); rerender(); }catch(err){ toast('导入失败：'+err.message); } };
+    fr.readAsText(t.files[0]);
+    t.value='';
+  }
+});
+
+function handleAct(act, el, ev){
+  ev && ev.preventDefault();
+  var id=el.getAttribute('data-id')||'';
+  var cid=el.getAttribute('data-cid')||'';
+  var pid=el.getAttribute('data-pid')||'';
+  var kind=el.getAttribute('data-kind')||'';
+  switch(act){
+    case 'check': toggleTask(kind, id); break;
+    case 'genreport': toast('周报已重新生成'); rerender(); break;
+    case 'print': window.print(); break;
+    case 'export-notes': exportNotesMd(id); break;
+    case 'ai-note': runAiNote(cid, pid); break;
+    case 'toggle-note': modalNoteEditor(cid, pid); break;
+    case 'note-save': {
+      var en=document.getElementById('mne')?document.getElementById('mne').value:''; var zh=document.getElementById('mnz')?document.getElementById('mnz').value:'';
+      if(!NOTE_TXT[cid]) NOTE_TXT[cid]={}; var nt=NOTE_TXT[cid][pid]||{zh:'',en:'',ai:''}; nt.en=en; nt.zh=zh; NOTE_TXT[cid][pid]=nt; save(); closeModal(); rerender(); toast('笔记已保存'); break; }
+    case 'modal-close': closeModal(); break;
+    case 'start-quiz': startQuiz(el); break;
+    case 'restart-quiz': { if(QUIZ_STATE){ QUIZ_STATE.i=0; QUIZ_STATE.answers=QUIZ_STATE.questions.map(function(){return null;}); QUIZ_STATE.fb=null; } save(); rerender(); break; }
+    case 'quiz-home': QUIZ_STATE=null; rerender(); break;
+    case 'q-opt': quizAnswer(id, parseInt(el.getAttribute('data-i'),10)); break;
+    case 'q-next': quizNext(id); break;
+    case 'q-fill': {
+      var val=document.getElementById('qFill')?document.getElementById('qFill').value.trim():'';
+      var q=QUIZ_STATE, cur=q.questions[q.i]; if(!val){ toast('先输入答案'); return; }
+      q.answers[q.i]=val; q.fb={idx:q.i, optIdx:-1, correct:null, explain:cur.explain||'', ansTxt:cur.answerText||'', type:'填空'}; save(); rerender(); break; }
+    case 'import-paste': openModal('<h3>粘贴快照 JSON</h3><div class="field"><textarea id="impText" style="min-height:160px" placeholder="把 moodle_snapshot_*.json 的内容粘贴到这里"></textarea></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" data-act="modal-close">取消</button><button class="btn primary" data-act="save-import">导入</button></div>'); break;
+    case 'save-import': {
+      var txt=document.getElementById('impText')?document.getElementById('impText').value:'';
+      try{ importSnapshotJson(txt); toast('导入成功：'+DB.courses.length+' 门课程'); closeModal(); rerender(); }catch(err){ toast('导入失败：'+err.message); } break; }
+    case 'save-token': {
+      DB.meta.moodleBase=(document.getElementById('setBase')?document.getElementById('setBase').value:'').trim()||'https://scemoodle.hkbu.edu.hk';
+      DB.meta.moodleToken=(document.getElementById('setToken')?document.getElementById('setToken').value:'').trim();
+      save();
+      if(!DB.meta.moodleToken){ toast('请先填写令牌'); break; }
+      toast('正在测试连接…');
+      moodleCall('core_webservice_get_site_info',{}).then(function(info){ toast('连接成功：'+(info.fullname||'有效令牌')); save(); }).catch(function(err){ toast('连接失败：'+err.message); });
+      break; }
+    case 'pull-moodle': toast('正在拉取 Moodle 数据…'); moodlePullAll().then(function(){ toast('拉取完成'); rerender(); }).catch(function(err){ toast('拉取失败：'+err.message); }); break;
+    case 'add-course': modalAddCourse(); break;
+    case 'add-assign': modalAddAssign(); break;
+    case 'add-event': modalAddEvent(); break;
+    case 'save-course': {
+      var nm=document.getElementById('acName')?document.getElementById('acName').value.trim():'';
+      if(!nm){ toast('请输入课程名称'); break; }
+      DB.courses.push({id:uid(), fullname:nm, shortname:(document.getElementById('acShort')?document.getElementById('acShort').value.trim():'')||'', url:(document.getElementById('acUrl')?document.getElementById('acUrl').value.trim():'')||''});
+      DB.meta.updatedAt=Date.now()/1000; save(); closeModal(); rerender(); toast('课程已添加'); break; }
+    case 'save-assign': {
+      var csel=document.getElementById('aaCourse'); var cid2=csel?csel.value:'';
+      var nm2=document.getElementById('aaName')?document.getElementById('aaName').value.trim():'';
+      if(!cid2||!nm2){ toast('请选择课程并填写名称'); break; }
+      var due=document.getElementById('aaDue')?document.getElementById('aaDue').value:'';
+      DB.assignments.push({id:uid(), course_id:cid2, name:nm2, duedate:due?Math.floor(new Date(due).getTime()/1000):null, url:(document.getElementById('aaUrl')?document.getElementById('aaUrl').value.trim():'')||'', intro:''});
+      DB.meta.updatedAt=Date.now()/1000; save(); closeModal(); rerender(); toast('作业已添加'); break; }
+    case 'save-event': {
+      var csel2=document.getElementById('aeCourse'); var cid3=csel2?csel2.value:'';
+      var nm3=document.getElementById('aeName')?document.getElementById('aeName').value.trim():'';
+      if(!cid3||!nm3){ toast('请选择课程并填写名称'); break; }
+      var tt=document.getElementById('aeTime')?document.getElementById('aeTime').value:'';
+      DB.events.push({id:uid(), course_id:cid3, name:nm3, timestart:tt?Math.floor(new Date(tt).getTime()/1000):null, type:'event', url:''});
+      DB.meta.updatedAt=Date.now()/1000; save(); closeModal(); rerender(); toast('事件已添加'); break; }
+    case 'export-data': download('moodle_assistant_data.json', JSON.stringify({db:DB,check:CHECK,quiz:QUIZLOG,notes:NOTE_TXT},null,1), 'application/json'); toast('数据已导出'); break;
+    case 'wipe': confirmBox('将删除本设备上的全部课程数据、勾选记录与 AI 设置（不可恢复）。','wipe-do'); break;
+    case 'wipe-do': closeModal(); wipeAll(); break;
+    case 'copy-snap': {
+      var ta=document.getElementById('snapCode'); if(!ta) break;
+      ta.select(); ta.setSelectionRange(0,99999);
+      try{ document.execCommand('copy'); toast('代码已复制，去 Moodle 控制台粘贴'); }
+      catch(err){ if(navigator.clipboard) navigator.clipboard.writeText(ta.value).then(function(){ toast('代码已复制'); }); else toast('复制失败，请手动选择复制'); }
+      break; }
+    case 'download-snap': download('moodle抓取工具.html', buildSnapPage(), 'text/html;charset=utf-8'); toast('抓取工具页已下载'); break;
+    case 'save-ai': {
+      DB.meta.aiEnabled=(document.getElementById('aiOn')?document.getElementById('aiOn').value:'0')==='1';
+      DB.meta.aiBase=(document.getElementById('aiBase')?document.getElementById('aiBase').value:'').trim();
+      DB.meta.aiModel=(document.getElementById('aiModel')?document.getElementById('aiModel').value:'').trim()||'deepseek-chat';
+      DB.meta.aiKey=(document.getElementById('aiKey')?document.getElementById('aiKey').value:'').trim();
+      DB.meta.quizTotal=parseInt((document.getElementById('aiTotal')?document.getElementById('aiTotal').value:'12'),10)||12;
+      save(); toast('AI 设置已保存'); rerender(); break; }
+    case 'test-ai': {
+      if(!aiReady()){ toast('请先保存 AI 设置'); break; }
+      toast('正在测试 AI 连接…');
+      aiFetch([{role:'user',content:'回复“连接成功”四个字'}], 50).then(function(t){ toast(t.slice(0,40)); }).catch(function(err){ toast('AI 测试失败：'+err.message); });
+      break; }
+  }
+}
+
+function runAiNote(cid, pid){
+  if(!aiReady()){ toast('请先在设置中开启并保存 AI 引擎'); return; }
+  var c=courseById(cid); var pt=pointsOf(cid).find(function(p){return p.id===pid;});
+  if(!pt) return;
+  toast('AI 正在精翻笔记…');
+  aiNotes(pt, c).then(function(txt){
+    if(!NOTE_TXT[cid]) NOTE_TXT[cid]={}; var nt=NOTE_TXT[cid][pid]||{zh:'',en:'',ai:''}; nt.ai=txt; NOTE_TXT[cid][pid]=nt;
+    save(); toast('笔记已生成'); rerender();
+  }).catch(function(err){ toast('AI 生成失败：'+err.message); });
+}
+
+function startQuiz(el){
+  var cid=el.getAttribute('data-id');
+  var modeEl=document.getElementById('qMode'); var mode=modeEl?modeEl.value:'basic';
+  var totalEl=document.getElementById('qTotal'); var total=parseInt(totalEl?totalEl.value:'12',10)||12;
+  var c=courseById(cid); if(!c) return;
+  if(mode==='ai' && aiReady()){
+    toast('AI 出题中，请稍候…');
+    aiQuestions(cid, total).then(function(qs){
+      QUIZ_STATE={mode:'ai', questions:qs, i:0, answers:qs.map(function(){return null;}), fb:null, courseId:String(cid)};
+      save(); rerender();
+    }).catch(function(err){ toast('AI 出题失败，改用基础自测：'+err.message); startBasic(cid,total); });
+  } else startBasic(cid,total);
+}
+function startBasic(cid,total){
+  var qs=basicQuestions(cid).slice(0,total);
+  if(!qs.length){ toast('该课程暂无考点，请先导入课程章节数据'); return; }
+  QUIZ_STATE={mode:'basic', questions:qs, i:0, answers:qs.map(function(){return null;}), fb:null, courseId:String(cid)};
+  save(); rerender();
+}
+
+/* ---------------- 示例数据（?demo=1 且无数据时） ---------------- */
+function seedDemo(){
+  var nowU=Math.floor(Date.now()/1000), d=86400;
+  DB.courses=[
+    {id:'101', fullname:'Business Intelligence & Data Analytics', shortname:'COMP7070', url:'https://scemoodle.hkbu.edu.hk/course/view.php?id=101'},
+    {id:'102', fullname:'Financial Accounting', shortname:'ACCT3005', url:'https://scemoodle.hkbu.edu.hk/course/view.php?id=102'},
+    {id:'103', fullname:'Academic English for Postgraduates', shortname:'ENGL2010', url:'https://scemoodle.hkbu.edu.hk/course/view.php?id=103'}
+  ];
+  DB.assignments=[
+    {id:'a1', course_id:'101', name:'Assignment 3: BI Dashboard Report', duedate:nowU+2*d, url:'https://scemoodle.hkbu.edu.hk/mod/assign/view.php?id=1001', intro:'Build an interactive dashboard with Power BI and write a 1500-word report.'},
+    {id:'a2', course_id:'102', name:'Problem Set 5 (Ch.7-8)', duedate:nowU+5*d, url:'https://scemoodle.hkbu.edu.hk/mod/assign/view.php?id=1002', intro:'Submit PDF answers.'},
+    {id:'a3', course_id:'103', name:'Essay Draft 2', duedate:nowU-1*d, url:'https://scemoodle.hkbu.edu.hk/mod/assign/view.php?id=1003', intro:''},
+    {id:'a4', course_id:'101', name:'Assignment 2: Data Cleaning', duedate:nowU-3*d, url:'https://scemoodle.hkbu.edu.hk/mod/assign/view.php?id=1004', intro:''}
+  ];
+  DB.events=[
+    {id:'e1', course_id:'101', name:'Mid-term Examination', timestart:nowU+3*d, type:'exam', url:''},
+    {id:'e2', course_id:'102', name:'Quiz 2 (online)', timestart:nowU+6*d, type:'quiz', url:''}
+  ];
+  DB.announcements=[
+    {id:'n1', course_id:'101', subject:'Mid-term scope & revision materials', message:'The mid-term covers Lectures 1-6. Sample questions are posted under Topic 4. Please check the revision guide attached.', author:'Dr. Chan', timemodified:nowU-0.2*d, url:'https://scemoodle.hkbu.edu.hk/mod/forum/discuss.php?d=51'},
+    {id:'n2', course_id:'102', subject:'Tutorial rescheduled', message:'Thursday tutorial moves to Friday 2:30pm in Room AAB 1202.', author:'Ms. Lam', timemodified:nowU-1.2*d, url:'https://scemoodle.hkbu.edu.hk/mod/forum/discuss.php?d=52'}
+  ];
+  DB.posts=[
+    {id:'p1', course_id:'101', forum:'General forum', subject:'Reminder: use the template for dashboard layout', message:'Remember to include KPI cards and a drill-down page.', author:'Dr. Chan', time:nowU-2*d, url:'https://scemoodle.hkbu.edu.hk/mod/forum/discuss.php?d=53'}
+  ];
+  DB.sections=[
+    {course_id:'101', section:'1', name:'Topic 1: Introduction to BI', modules:[{id:'m1',modname:'resource',name:'Lecture 1 slides (PDF)',url:'#'},{id:'m2',modname:'url',name:'Power BI tutorial video',url:'#'},{id:'m3',modname:'page',name:'Reading: BI maturity model',url:'#'}]},
+    {course_id:'101', section:'2', name:'Topic 2: Data Warehousing', modules:[{id:'m4',modname:'resource',name:'Lecture 2 slides',url:'#'},{id:'m5',modname:'assign',name:'Assignment 1 brief',url:'#'}]},
+    {course_id:'101', section:'3', name:'Topic 3: Data Visualisation', modules:[{id:'m6',modname:'resource',name:'Lecture 3 slides',url:'#'},{id:'m7',modname:'url',name:'Chart design checklist',url:'#'},{id:'m8',modname:'page',name:'Lab: Dashboard in Power BI',url:'#'}]},
+    {course_id:'101', section:'4', name:'Topic 4: Case Studies', modules:[{id:'m9',modname:'resource',name:'Case pack (PDF)',url:'#'}]},
+    {course_id:'102', section:'1', name:'Ch.7: Inventory & COGS', modules:[{id:'m10',modname:'resource',name:'Slides Ch.7',url:'#'},{id:'m11',modname:'page',name:'Worked examples',url:'#'}]},
+    {course_id:'102', section:'2', name:'Ch.8: Receivables', modules:[{id:'m12',modname:'resource',name:'Slides Ch.8',url:'#'}]},
+    {course_id:'103', section:'1', name:'Unit 5: Academic Argumentation', modules:[{id:'m13',modname:'resource',name:'Handout Unit 5',url:'#'},{id:'m14',modname:'url',name:'Sample essays',url:'#'}]}
+  ];
+  DB.submissions={'a1':{status:'not_submitted',submitted:false,graded:false,grade:''},'a2':{status:'not_submitted',submitted:false,graded:false,grade:''},'a3':{status:'not_submitted',submitted:false,graded:false,grade:''},'a4':{status:'submitted',submitted:true,graded:true,grade:'18/20'}};
+  DB.meta.updatedAt=nowU; DB.meta.source='示例数据';
+}
+
+/* ---------------- 初始化 ---------------- */
+window.addEventListener('hashchange', rerender);
+load();
+setIc('logoIcon','cap');
+if((/[?&]demo=1/.test(location.search) || /index_demo\.html/i.test(location.pathname||'')) && !localStorage.getItem(LS_KEY)){ seedDemo(); save(); }
+if(isFresh() && DB.meta.lastReportWeek!==isoWeek(now())){
+  DB.meta.lastReportWeek=isoWeek(now()); save();
+  setTimeout(function(){ toast('已生成本周周报'); }, 500);
+}
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){ navigator.serviceWorker.register('sw.js').catch(function(){}); }
+route();
+</script>
+</body>
+</html>
