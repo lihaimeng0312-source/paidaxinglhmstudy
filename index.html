@@ -895,6 +895,9 @@ function importSnapshotJson(text){
   var o=JSON.parse(text);
   if(o.format && o.format.indexOf('moodle-assistant')>=0) return applySnapshot(o,'Moodle 快照');
   if(o.courses && o.assignments) return applySnapshot(o,'数据导入');
+  if(o.db && (o.check!==undefined||o.quiz!==undefined||o.notes!==undefined)){
+    DB=o.db; CHECK=o.check||{}; QUIZLOG=o.quiz||[]; NOTE_TXT=o.notes||''; save(); return;
+  }
   throw new Error('无法识别的数据格式');
 }
 
