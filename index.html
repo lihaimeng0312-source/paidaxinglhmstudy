@@ -952,7 +952,14 @@ var SNAP_CODE = [
 "  function doc(u){ return get(u).then(function(t){ return new DOMParser().parseFromString(t,'text/html'); }); }",
 "  function clean(s){ return String(s==null?'':s).replace(/\\s+/g,' ').trim(); }",
 "  function findTime(el){ var t=el&&el.querySelector('time'); if(t&&t.getAttribute('datetime')){ var ts=Date.parse(t.getAttribute('datetime')); if(!isNaN(ts)) return Math.floor(ts/1000); } return null; }",
-"  function parseDate(txt){ txt=clean(txt||''); if(!txt) return null; var m=txt.match(/(\\d{4})[\\/-](\\d{1,2})[\\/-](\\d{1,2})[^\\d]*(\\d{1,2}):?(\\d{2})?/); if(m){ var d=new Date(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),0); return Math.floor(d.getTime()/1000); } return null; }",
+"  var MON={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};",
+"  function parseDate(txt){ txt=clean(txt||''); if(!txt) return null;",
+"    var m;",
+"    m=txt.match(/(\\d{4})[\\/\\-](\\d{1,2})[\\/\\-](\\d{1,2})[^\\d]*(\\d{1,2})?:?(\\d{2})?/); if(m){ return Math.floor(new Date(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),0).getTime()/1000); }",
+"    m=txt.match(/(\\d{1,2})\\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\s+(\\d{4})[^\\d]*(\\d{1,2})?:?(\\d{2})?/i); if(m){ var mo=MON[m[2].toLowerCase()]; return Math.floor(new Date(+m[3],mo-1,+m[1],+(m[4]||0)%24,+(m[5]||0),0).getTime()/1000); }",
+"    m=txt.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\s+(\\d{1,2}),?\\s+(\\d{4})[^\\d]*(\\d{1,2})?:?(\\d{2})?/i); if(m){ var mo=MON[m[1].toLowerCase()]; return Math.floor(new Date(+m[3],mo-1,+m[2],+(m[4]||0)%24,+(m[5]||0),0).getTime()/1000); }",
+"    m=txt.match(/(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月\\s*(\\d{1,2})\\s*日[^\\d]*(\\d{1,2})?:?(\\d{2})?/); if(m){ return Math.floor(new Date(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),0).getTime()/1000); }",
+"    return null; }",
 "  function parseICS(t){ var evs=[], rx=/BEGIN:VEVENT([\\s\\S]*?)END:VEVENT/g, m; while((m=rx.exec(t))){ var b=m[1]; function val(k){ var x=b.match(new RegExp('^'+k+':(.*)$','m')); return x?x[1].trim():''; } function val2(k){ var x=b.match(new RegExp('^'+k+';[^:]*:(.*)$','m')); return x?x[1].trim():''; }",
 "    var ds=val('DTSTART')||val2('DTSTART'); if(!ds) continue; var ts; if(/Z$/.test(ds)){ ts=Date.parse(ds)/1000; } else { var mm=ds.match(/^(\\d{4})(\\d{2})(\\d{2})T?(\\d{2})?(\\d{2})?(\\d{2})?/); if(mm){ ts=Math.floor(new Date(+mm[1],+mm[2]-1,+mm[3],+(mm[4]||0),+(mm[5]||0),+(mm[6]||0)).getTime()/1000); } }",
 "    if(!ts) continue; evs.push({name:val('SUMMARY')||'(事件)', timestart:ts, description:val('DESCRIPTION'), url:val('URL'), categories:val('CATEGORIES')});",
@@ -964,10 +971,21 @@ var SNAP_CODE = [
 "  function show(){ badge.querySelector('div').innerHTML=log.slice(-12).map(function(s){ return '<div>'+s.replace(/</g,'&lt;')+'</div>'; }).join(''); }",
 "  try{",
 "    push('开始抓取 ' + B); show();",
-"    var hp=await doc(B+'/course/index.php');",
 "    var seen={};",
-"    hp.querySelectorAll('a[href*=\"course/view.php?id=\"]').forEach(function(a){ var m=(a.getAttribute('href')||'').match(/course\\/view\\.php\\?id=(\\d+)/); if(m && !seen[m[1]]){ seen[m[1]]=1; var nm=clean(a.textContent)||clean(a.getAttribute('title'))||''; if(nm && !/\\d+$/.test(nm)) out.courses.push({id:String(m[1]), name:nm}); } });",
-"    if(!out.courses.length){ var mp=await doc(B+'/my/'); mp.querySelectorAll('a[href*=\"course/view.php?id=\"]').forEach(function(a){ var m=(a.getAttribute('href')||'').match(/course\\/view\\.php\\?id=(\\d+)/); if(m && !seen[m[1]]){ seen[m[1]]=1; out.courses.push({id:String(m[1]), name:clean(a.textContent)||''}); } }); }",
+"    function addCourse(id,name){ if(!id||seen[id]) return; seen[id]=1; out.courses.push({id:String(id), name:clean(name||'')}); }",
+"    /* 1. 从当前页面 URL 提取课程 */",
+"    var curM=location.href.match(/course\\/view\\.php\\?id=(\\d+)/);",
+"    if(curM){ var h1=document.querySelector('#page-header h1, .page-header-headings h1, h1'); addCourse(curM[1], h1?clean(h1.textContent):''); }",
+"    /* 2. 从页面侧边导航/面包屑找课程链接 */",
+"    document.querySelectorAll('a[href*=\"course/view.php?id=\"]').forEach(function(a){ var m=(a.getAttribute('href')||'').match(/course\\/view\\.php\\?id=(\\d+)/); if(m) addCourse(m[1], clean(a.textContent)||a.getAttribute('title')||''); });",
+"    /* 3. 试 /course/index.php */",
+"    try{ var hp=await doc(B+'/course/index.php'); hp.querySelectorAll('a[href*=\"course/view.php?id=\"]').forEach(function(a){ var m=(a.getAttribute('href')||'').match(/course\\/view\\.php\\?id=(\\d+)/); if(m) addCourse(m[1], clean(a.textContent)||a.getAttribute('title')||''); }); }catch(e){ push('课程列表页抓取失败：'+e.message); }",
+"    /* 4. 试 /my/ */",
+"    if(!out.courses.length){ try{ var mp=await doc(B+'/my/'); mp.querySelectorAll('a[href*=\"course/view.php?id=\"]').forEach(function(a){ var m=(a.getAttribute('href')||'').match(/course\\/view\\.php\\?id=(\\d+)/); if(m) addCourse(m[1], clean(a.textContent)||''); }); }catch(e){ push('个人页抓取失败：'+e.message); } }",
+"    /* 5. 试 /my/courses.php */",
+"    if(!out.courses.length){ try{ var cp=await doc(B+'/my/courses.php'); cp.querySelectorAll('a[href*=\"course/view.php?id=\"]').forEach(function(a){ var m=(a.getAttribute('href')||'').match(/course\\/view\\.php\\?id=(\\d+)/); if(m) addCourse(m[1], clean(a.textContent)||''); }); }catch(e){ push('我的课程页抓取失败：'+e.message); } }",
+"    /* 6. 用 Moodle AJAX API 获取全部已选课程 */",
+"    try{ var sk=(window.M&&M.cfg&&M.cfg.sesskey)||''; if(sk){ var resp=await fetch(B+'/lib/ajax/service.php?sesskey='+sk,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify([{index:0,methodname:'core_course_get_enrolled_courses_by_timeline_classic',args:{offset:0,limit:200,sort:'fullname',requestedtimestart:0,requestedtimeend:0,classification:'all',customfielddefinition:null}}])}); var rj=await resp.json(); if(rj&&rj[0]&&rj[0].data&&rj[0].data.courses){ rj[0].data.courses.forEach(function(co){ addCourse(String(co.id), co.fullname||co.shortname||('Course '+co.id)); }); push('API 获取课程 ' + rj[0].data.courses.length + ' 门'); } } }catch(e){ push('API 获取课程失败：'+e.message); }",
 "    push('发现课程 ' + out.courses.length + ' 门'); show();",
 "    try{ var ics=await get(B+'/calendar/export.php?preset_what=all&preset_time=recentupcoming'); var evs=parseICS(ics); evs.forEach(function(e){ out.events.push({id:'ev'+Math.random().toString(36).slice(2,8), course_id:courseIdOf(e.categories+' '+(e.description||'')), name:e.name, timestart:e.timestart, type:'event', url:e.url||''}); }); push('日历事件 ' + evs.length + ' 条'); }catch(e){ push('日历抓取失败：' + e.message); }",
 "    show();",
@@ -979,10 +997,28 @@ var SNAP_CODE = [
 "        var h1=cp.querySelector('#page-header h1, .page-header-headings h1'); if(h1){ full=clean(h1.textContent); }",
 "        if(full){ out.courses[i].fullname=full; }",
 "        var crumb=cp.querySelector('.breadcrumb-item:last-child, [itemprop=\"title\"]'); if(crumb){ var s=clean(crumb.textContent); if(s && s!==full) out.courses[i].shortname=s; }",
-"        cp.querySelectorAll('li.section').forEach(function(sec){ var ne=sec.querySelector('.sectionname'); var nm=ne?clean(ne.textContent).replace(/^第\\d+节\\s*|^Section\\s*\\d+\\s*/i,''):''; var mods=[]; sec.querySelectorAll('.activity').forEach(function(act){ var al=act.querySelector('a.aalink')||act.querySelector('a[href*=\"/mod/\"]'); if(!al) return; var href=al.getAttribute('href')||''; var m=href.match(/\\/mod\\/(\\w+)\\/view\\.php\\?id=(\\d+)/); if(m){ mods.push({id:String(m[2]), modname:m[1], name:clean(al.textContent), url:new URL(href,B).href}); } }); out.sections.push({course_id:String(c.id), section:sec.getAttribute('data-id')||String(out.sections.length+1), name:nm, modules:mods}); });",
+"        cp.querySelectorAll('li.section').forEach(function(sec){ var ne=sec.querySelector('.sectionname'); var nm=ne?clean(ne.textContent).replace(/^\u7b2c\\d+\u8282\\s*|^Section\\s*\\d+\\s*/i,''):''; var mods=[];",
+"          sec.querySelectorAll('.activity').forEach(function(act){ var al=act.querySelector('a.aalink')||act.querySelector('a[href*=\"/mod/\"]'); if(!al) return; var href=al.getAttribute('href')||''; var m=href.match(/\\/mod\\/(\\w+)\\/view\\.php\\?id=(\\d+)/); if(m){",
+"            var mod={id:String(m[2]), modname:m[1], name:clean(al.textContent), url:new URL(href,B).href, duedate:null};",
+"            var actText=clean(act.textContent); var dm=actText.match(/(?:Due|Closes|Deadline|\u63d0\u4ea4\u65f6\u95f4|\u622a\u6b62)[^:]*:\\s*(.+?)(?:\\s{2,}|$)/i); if(dm){ var dt=parseDate(dm[1]); if(dt) mod.duedate=dt; }",
+"            mods.push(mod); } });",
+"          out.sections.push({course_id:String(c.id), section:sec.getAttribute('data-id')||String(out.sections.length+1), name:nm, modules:mods}); });",
 "        push(c.name+'：小节 ' + out.sections.filter(function(s){return s.course_id===String(c.id);}).length + ' 个');",
+"        /* 从课程页面模块直接提取作业 */",
+"        var courseAssignIds={};",
+"        out.sections.forEach(function(sec){ if(sec.course_id!==String(c.id)) return; sec.modules.forEach(function(m){ var isAssign=(m.modname==='assign'||m.modname==='quiz'||m.duedate||/submission|proposal|assignment|exercise|worksheet|project|report|essay|quiz|test|exam|worksheet|discussion|homework|lab|作业|提交|论文|报告|测验|考试/i.test(m.name)); if(isAssign && !courseAssignIds[m.id]){ courseAssignIds[m.id]=1; var exist=out.assignments.findIndex(function(x){return x.id===m.id;}); if(exist<0){ out.assignments.push({id:m.id, course_id:String(c.id), name:m.name, duedate:m.duedate||null, url:m.url}); } } }); });",
+"        push(c.name+'：从课程页发现作业 ' + out.assignments.filter(function(a){return a.course_id===String(c.id);}).length + ' 项');",
+"        /* 逐个访问作业页面取截止日期和提交状态 */",
+"        for(var ai=0; ai<out.assignments.length; ai++){ var aa=out.assignments[ai]; if(aa.course_id!==String(c.id) || aa.duedate) continue; try{ var avp=await doc(aa.url); var dued=null;",
+"          /* 找 Due date 行 */",
+"          avp.querySelectorAll('tr').forEach(function(tr){ var th=tr.querySelector('th, td'); if(!th) return; var label=clean(th.textContent); if(/due date|deadline|提交时间|截止/i.test(label)){ var cell=tr.querySelectorAll('td'); var cv=cell.length>1?cell[1]:tr.nextElementSibling; if(cv){ var dt=parseDate(clean(cv.textContent)); if(dt) dued=dt; } } });",
+"          /* 备选：全页面找含 due date 的文本块 */",
+"          if(!dued){ avp.querySelectorAll('.activity-due-date, .submissiontdate, .availability-info, .date').forEach(function(el){ var dt=parseDate(clean(el.textContent)); if(dt) dued=dt; }); }",
+"          if(!dued){ avp.querySelectorAll('div, p, td, li, th, span').forEach(function(el){ var t=clean(el.textContent); if(/due date|deadline|提交时间|截止/i.test(t)){ var dt=parseDate(t); if(dt) dued=dt; } }); }",
+"          if(dued) aa.duedate=dued;",
+"          var sub=avp.querySelector('.submissionstatussubmitted, .submissionstatussubmission, [data-region=\"submission-status\"], .submissionstatus, .submissionstatussubmissionnotrequired'); var st='not_submitted'; if(sub){ var stx=clean(sub.textContent).toLowerCase(); if(/not submitted|no submission|未提交|未上传/i.test(stx)) st='not_submitted'; else if(/submitted|已提交/i.test(stx)) st='submitted'; if(/graded|已评分/i.test(stx)) st='graded'; } out.submissions[aa.id]={status:st, submitted:(st==='submitted'||st==='graded'), graded:(st==='graded')}; await sleep(100); }catch(e){} }",
 "        var ap=await doc(B+'/mod/assign/index.php?id='+c.id);",
-"        ap.querySelectorAll('table tbody tr').forEach(function(tr){ var a=tr.querySelector('a[href*=\"mod/assign/view.php?id=\"]'); if(!a) return; var m=(a.getAttribute('href')||'').match(/id=(\\d+)/); if(!m) return; var tds=tr.querySelectorAll('td'); var duedate=null, status='unknown', aid=String(m[1]); for(var t=0;t<tds.length;t++){ var txt=clean(tds[t].textContent); if(/20\\d{2}/.test(txt) && duedate==null){ duedate=parseDate(txt); } if(/submitted|graded|not submitted|no submission|已提交|已评分|未提交/i.test(txt)){ var lt=txt.toLowerCase(); if(/graded/i.test(lt)) status='graded'; else if(/submitted/i.test(lt)) status='submitted'; else status='not_submitted'; } } var aidx=out.assignments.findIndex(function(x){ return x.id===aid; }); if(aidx<0){ out.assignments.push({id:aid, course_id:String(c.id), name:clean(a.textContent), duedate:duedate, url:new URL(a.getAttribute('href'),B).href}); aidx=out.assignments.length-1; } out.submissions[aid]={status:status, submitted:(status==='submitted'||status==='graded'), graded:(status==='graded')}; });",
+"        ap.querySelectorAll('table tbody tr').forEach(function(tr){ var a=tr.querySelector('a[href*=\"mod/assign/view.php?id=\"]'); if(!a) return; var m=(a.getAttribute('href')||'').match(/id=(\\d+)/); if(!m) return; var tds=tr.querySelectorAll('td'); var duedate=null, status='unknown', aid=String(m[1]); for(var t=0;t<tds.length;t++){ var txt=clean(tds[t].textContent); if(/20\\d{2}/.test(txt) && duedate==null){ duedate=parseDate(txt); } if(/submitted|graded|not submitted|no submission|已提交|已评分|未提交/i.test(txt)){ var lt=txt.toLowerCase(); if(/graded/i.test(lt)) status='graded'; else if(/not submitted|no submission|未提交/i.test(lt)) status='not_submitted'; else if(/submitted|已提交/i.test(lt)) status='submitted'; else status='not_submitted'; } } var aidx=out.assignments.findIndex(function(x){ return x.id===aid; }); if(aidx<0){ out.assignments.push({id:aid, course_id:String(c.id), name:clean(a.textContent), duedate:duedate, url:new URL(a.getAttribute('href'),B).href}); aidx=out.assignments.length-1; } out.submissions[aid]={status:status, submitted:(status==='submitted'||status==='graded'), graded:(status==='graded')}; });",
 "        push(c.name+'：作业 ' + out.assignments.filter(function(a){return a.course_id===String(c.id);}).length + ' 项');",
 "        var fp=await doc(B+'/mod/forum/index.php?id='+c.id);",
 "        var forums=[]; fp.querySelectorAll('a[href*=\"mod/forum/view.php?f=\"]').forEach(function(a){ var m=(a.getAttribute('href')||'').match(/f=(\\d+)/); if(m){ forums.push({id:m[1], name:clean(a.textContent), url:new URL(a.getAttribute('href'),B).href}); } });",
@@ -1014,6 +1050,7 @@ function viewSettings(){
     +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
     +'<label class="btn primary">'+ic('dl')+'选择快照文件（JSON）<input type="file" accept=".json,application/json" style="display:none" data-act="import-file"></label>'
     +'<button class="btn ghost" data-act="import-paste">'+ic('edit')+'粘贴 JSON 文本</button>'
+    +'<button class="btn ghost" data-act="import-url">'+ic('dl')+'从链接导入</button>'
     +'</div></div></details>';
 
   h+='<details class="acc"><summary>'+ic('gear')+'② Moodle 令牌直连（可选：拿到 wstoken 后全自动）</summary><div class="acc-body">'
@@ -1244,6 +1281,8 @@ function handleAct(act, el, ev){
       var q=QUIZ_STATE, cur=q.questions[q.i]; if(!val){ toast('先输入答案'); return; }
       q.answers[q.i]=val; q.fb={idx:q.i, optIdx:-1, correct:null, explain:cur.explain||'', ansTxt:cur.answerText||'', type:'填空'}; save(); rerender(); break; }
     case 'import-paste': openModal('<h3>粘贴快照 JSON</h3><div class="field"><textarea id="impText" style="min-height:160px" placeholder="把 moodle_snapshot_*.json 的内容粘贴到这里"></textarea></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" data-act="modal-close">取消</button><button class="btn primary" data-act="save-import">导入</button></div>'); break;
+    case 'import-url': openModal('<h3>从链接导入数据</h3><div class="field"><label>数据文件链接</label><input id="impUrl" placeholder="粘贴 GitHub raw 链接或其他 JSON 直链"></div><div style="font-size:12px;color:#888;margin:8px 0">把导出的 JSON 上传到 GitHub，点 Raw 按钮复制链接贴到这里</div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" data-act="modal-close">取消</button><button class="btn primary" data-act="save-import-url">导入</button></div>'); break;
+    case 'save-import-url': { var u=document.getElementById('impUrl')?document.getElementById('impUrl').value.trim():''; if(!u){ toast('先粘贴链接'); break; } toast('正在下载…'); fetch(u).then(function(r){return r.text();}).then(function(t){ importSnapshotJson(t); toast('导入成功：'+DB.courses.length+' 门课程'); closeModal(); rerender(); }).catch(function(e){ toast('下载失败：'+e.message); }); break; }
     case 'save-import': {
       var txt=document.getElementById('impText')?document.getElementById('impText').value:'';
       try{ importSnapshotJson(txt); toast('导入成功：'+DB.courses.length+' 门课程'); closeModal(); rerender(); }catch(err){ toast('导入失败：'+err.message); } break; }
